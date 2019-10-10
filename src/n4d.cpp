@@ -271,7 +271,9 @@ void Client::create_request(string plugin,string method,vector<Variant> params,a
                 
                 //plugin
                 out.append("<param>");
+                out.append("<value><string>");
                     out.append(plugin);
+                out.append("</string></value>");
                 out.append("</param>");
                 
                 //parameters
