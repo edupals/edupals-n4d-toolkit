@@ -40,6 +40,7 @@ Client::Client()
     if (Client::curl_counter==0) {
         if (curl_global_init(CURL_GLOBAL_ALL)==0) {
             Client::curl_counter++;
+            clog<<"Initialized curl"<<endl;
         }
         else {
             cerr<<"Failed to load curl"<<endl;
@@ -115,6 +116,7 @@ Client::~Client()
     Client::curl_counter--;
     
     if (Client::curl_counter==0) {
+        clog<<"destroying curl"<<endl;
         curl_global_cleanup();
     }
 }
@@ -124,7 +126,6 @@ size_t response_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
     string* in=static_cast<string *>(userdata);
     
     for (size_t n=0;n<nmemb;n++) {
-        clog<<ptr[n]<<endl;
         in->append(1,ptr[n]);
     }
 }
@@ -134,11 +135,14 @@ void Client::rpc_call(string& in,string& out)
     CURL *curl;
     CURLcode res;
     
-    clog<<"rpc_call"<<endl;
-    
     string url="https://"+address;
     
     curl = curl_easy_init();
+    if(!curl) {
+        //TODO: throw a exception
+        cerr<<"failed to create curl ctx"<<endl;
+    }
+    
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_PORT, port);
     
@@ -150,6 +154,9 @@ void Client::rpc_call(string& in,string& out)
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,response_cb);
     
     res=curl_easy_perform(curl);
+    
+    //TODO: throw a exception
+    clog<<"status:"<<res<<endl;
     
     curl_easy_cleanup(curl);
 }

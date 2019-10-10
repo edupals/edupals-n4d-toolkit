@@ -28,9 +28,9 @@ using namespace edupals;
 int main(int argc,char* argv[])
 {
     
-    n4d::Client client("server",9779);
+    n4d::Client client("localhost",9779);
     
-    client.call("VariablesManager","get_variable_list");
+    client.call("VariablesManager","listvars");
     
     return 0;
 }
