@@ -90,8 +90,6 @@ namespace edupals
             void create_value(variant::Variant param,std::string& out);
             void create_request(std::string plugin,std::string method,std::vector<variant::Variant> params,auth::Credential credential,std::string& out);
             
-            static int curl_counter;
-            
             public:
             
             

@@ -33,28 +33,40 @@ using namespace edupals::n4d;
 
 using namespace std;
 
-int Client::curl_counter=0;
+class CurlFactory
+{
+    public:
+        
+    bool ready;
+    
+    CurlFactory()
+    {
+        clog<<"loading curl\n";
+        ready = (curl_global_init(CURL_GLOBAL_ALL)==0);
+    }
+    
+    ~CurlFactory()
+    {
+        if (ready) {
+            clog<<"destroying curl\n";
+            curl_global_cleanup();
+        }
+    }
+};
+
+static CurlFactory curl_instance;
 
 Client::Client()
 {
-    if (Client::curl_counter==0) {
-        if (curl_global_init(CURL_GLOBAL_ALL)==0) {
-            Client::curl_counter++;
-            clog<<"Initialized curl"<<endl;
-        }
-        else {
-            cerr<<"Failed to load curl"<<endl;
-        }
-    }
 }
 
-Client::Client(string address,int port) : Client()
+Client::Client(string address,int port)
 {
     this->address=address;
     this->port=port;
 }
 
-Client::Client(string address,int port,string user,string password) : Client()
+Client::Client(string address,int port,string user,string password)
 {
     this->address=address;
     this->port=port;
@@ -62,7 +74,7 @@ Client::Client(string address,int port,string user,string password) : Client()
     credential=auth::Credential(user,password);
 }
 
-Client::Client(string address,int port,string key) : Client()
+Client::Client(string address,int port,string key)
 {
     this->address=address;
     this->port=port;
@@ -113,12 +125,7 @@ Variant Client::call(string plugin,string method,vector<Variant> params, auth::C
 
 Client::~Client()
 {
-    Client::curl_counter--;
-    
-    if (Client::curl_counter==0) {
-        clog<<"destroying curl"<<endl;
-        curl_global_cleanup();
-    }
+
 }
 
 size_t response_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
@@ -136,6 +143,11 @@ void Client::rpc_call(string& in,string& out)
     CURLcode res;
     
     string url="https://"+address;
+    
+    if (!curl_instance.ready) {
+        //TODO: exception here
+        cerr<<"Curl is not ready!!"<<endl;
+    }
     
     curl = curl_easy_init();
     if(!curl) {
