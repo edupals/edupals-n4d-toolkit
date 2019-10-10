@@ -85,13 +85,21 @@ namespace edupals
             int port;
             auth::Credential credential;
             
+            void rpc_call(std::string& in,std::string& out);
+            
+            void create_value(variant::Variant param,std::string& out);
+            void create_request(std::string plugin,std::string method,std::vector<variant::Variant> params,auth::Credential credential,std::string& out);
+            
+            static int curl_counter;
+            
             public:
+            
+            
+            Client();
             
             /*!
              * Default client to https://localhost 9779 and anonymous credential
             */
-            Client();
-            
             Client(std::string address,int port);
             
             Client(std::string address,int port,std::string user,std::string password);
@@ -100,9 +108,9 @@ namespace edupals
             
             variant::Variant call(std::string plugin,std::string method);
             
-            variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> args);
+            variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> params);
             
-            variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> args, auth::Credential credential);
+            variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
             
             virtual ~Client();
             

@@ -15,3 +15,8 @@ set_target_properties(edupals-n4d PROPERTIES SOVERSION 1)
 install(TARGETS edupals-n4d
     LIBRARY DESTINATION "lib"
 )
+
+
+#testing application
+add_executable(testing testing.cpp)
+target_link_libraries(testing edupals-n4d)
