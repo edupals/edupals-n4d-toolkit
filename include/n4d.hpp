@@ -25,11 +25,72 @@
 
 #include <string>
 #include <vector>
+#include <exception>
 
 namespace edupals
 {
     namespace n4d
     {
+        namespace exception
+        {
+            class BadXML : public std::exception
+            {
+                private:
+                std::string msg;
+                
+                public:
+                
+                BadXML(std::string info)
+                {
+                    const std::string header="Bad XML response: ";
+                    msg=header+info;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class FaultRPC : public std::exception
+            {
+                private:
+                std::string msg;
+                
+                public:
+                
+                FaultRPC(std::string info)
+                {
+                    const std::string header="Fault RPC: ";
+                    msg=header+info;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class CurlError : public std::exception
+            {
+                private:
+                std::string msg;
+                
+                public:
+                
+                CurlError(std::string info,long int id)
+                {
+                    const std::string header="Curl error: ";
+                    msg=header+info+"("+std::to_string(id)+")";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+        }
+        
         namespace auth
         {
             enum class Type
@@ -81,6 +142,7 @@ namespace edupals
         class Client
         {
             protected:
+            
             std::string address;
             int port;
             auth::Credential credential;
@@ -88,17 +150,19 @@ namespace edupals
             void rpc_call(std::string& in,std::string& out);
             
             void create_value(variant::Variant param,std::string& out);
-            void create_request(std::string plugin,std::string method,std::vector<variant::Variant> params,auth::Credential credential,std::string& out);
+
+            void create_request(std::string plugin,
+                                std::string method,
+                                std::vector<variant::Variant> params,
+                                auth::Credential credential,
+                                std::string& out);
             
             public:
-            
-            
-            Client();
             
             /*!
              * Default client to https://localhost 9779 and anonymous credential
             */
-            Client(std::string address,int port);
+            Client(std::string address="https://localhost",int port=9779);
             
             Client(std::string address,int port,std::string user,std::string password);
             

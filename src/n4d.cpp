@@ -24,12 +24,16 @@
 #include <n4d.hpp>
 
 #include <curl/curl.h>
+#include <rapidxml/rapidxml.hpp>
 
 #include <iostream>
+#include <cstring>
 
 using namespace edupals;
 using namespace edupals::variant;
 using namespace edupals::n4d;
+
+using namespace rapidxml;
 
 using namespace std;
 
@@ -41,14 +45,12 @@ class CurlFactory
     
     CurlFactory()
     {
-        clog<<"loading curl\n";
         ready = (curl_global_init(CURL_GLOBAL_ALL)==0);
     }
     
     ~CurlFactory()
     {
         if (ready) {
-            clog<<"destroying curl\n";
             curl_global_cleanup();
         }
     }
@@ -56,9 +58,6 @@ class CurlFactory
 
 static CurlFactory curl_instance;
 
-Client::Client()
-{
-}
 
 Client::Client(string address,int port)
 {
@@ -82,22 +81,139 @@ Client::Client(string address,int port,string key)
     credential=auth::Credential(key);
 }
 
+Variant parse_value(rapidxml::xml_node<>* node_value)
+{
+    Variant ret;
+    
+    rapidxml::xml_node<>* node = node_value->first_node();
+    
+    //nothing?
+    if (!node) {
+        return ret;
+    }
+    
+    string name = node->name();
+    string value = node->value();
+    clog<<name<<endl;
+    
+    if (name=="int" or name=="i4") {
+        ret=std::stoi(value);
+    }
+    
+    if (name=="double") {
+        ret=std::stod(value);
+    }
+    
+    if (name=="boolean") {
+        int b=std::stoi(value);
+        ret=(b==1);
+    }
+    
+    if (name=="string") {
+        ret=value;
+    }
+    
+    // datetime and base64 not fully supported, return as string
+    if (name=="dateTime.iso8601") {
+        ret=value;
+    }
+    
+    if (name=="base64") {
+        ret=value;
+    }
+    
+    if (name=="array") {
+        rapidxml::xml_node<>* node_data = node->first_node("data");
+        
+        if (node_data) {
+            ret=Variant::create_array(0);
+            rapidxml::xml_node<>* node_value = node_data->first_node("value");
+            
+            while(node_value) {
+                ret.append(parse_value(node_value));
+                node_value = node_value->next_sibling("value");
+            }
+        }
+    }
+    
+    if (name=="struct") {
+        rapidxml::xml_node<>* node_member = node->first_node("member");
+        ret=Variant::create_struct();
+        
+        while (node_member) {
+            rapidxml::xml_node<>* node_name = node_member->first_node("name");
+            rapidxml::xml_node<>* node_value = node_member->first_node("value");
+            
+            if (node_name and node_value) {
+                ret[node_name->value()]=parse_value(node_value);
+            }
+            
+            node_member=node_member->next_sibling("member");
+        }
+    }
+    
+    return ret;
+}
+
 Variant Client::call(string plugin,string method)
 {
     string out;
     string in;
     
     vector<Variant> params;
+    Variant ret;
     
     create_request(plugin,method,params,credential,out);
     
     clog<<"call 0:"<<endl;
-    clog<<out<<endl;
     
     rpc_call(in,out);
     
-    clog<<"response:"<<endl;
-    clog<<in<<endl;
+    //in="<?xml version=\'1.0\'?><methodResponse> <params> <param> <value> <array><data><value><int>33</int></value><value><int>16</int></value></data></array></value></param> </params> </methodResponse>";
+    //in="<?xml version=\'1.0\'?><methodResponse><params><param><value> <struct><member><name>count</name><value><int>400</int></value></member></struct> </value></param> </params> </methodResponse>";
+    
+    xml_document<> doc; 
+    
+    //TODO: check for exceptions
+    char* memxml=new char[in.size()+1];
+    std::memcpy(memxml,in.c_str(),in.size()+1);
+    
+    doc.parse<0>(memxml);
+    
+    delete [] memxml;
+    
+    rapidxml::xml_node<>* node_method = doc.first_node("methodResponse");
+    
+    if (!node_method) {
+        throw exception::BadXML("missing methodResponse node");
+    }
+    
+    rapidxml::xml_node<>* node_params = node_method->first_node();
+    
+    if (!node_params) {
+        throw exception::BadXML("missing params or fault node");
+    }
+    
+    string name=node_params->name();
+    
+    if (name=="fault") {
+        throw exception::FaultRPC("");
+    }
+    
+    if (name=="params") {
+        rapidxml::xml_node<>* node_param=node_params->first_node("param");
+        
+        if (node_param) {
+            
+            rapidxml::xml_node<>* node_value=node_param->first_node("value");
+            
+            if (node_value) {
+                ret=parse_value(node_value);
+            }
+        }
+    }
+    
+    return ret;
 }
 
 Variant Client::call(string plugin,string method,vector<Variant> params)
@@ -142,20 +258,17 @@ void Client::rpc_call(string& in,string& out)
     CURL *curl;
     CURLcode res;
     
-    string url="https://"+address;
     
     if (!curl_instance.ready) {
-        //TODO: exception here
-        cerr<<"Curl is not ready!!"<<endl;
+        throw exception::CurlError("curl_global_init",0);
     }
     
     curl = curl_easy_init();
     if(!curl) {
-        //TODO: throw a exception
-        cerr<<"failed to create curl ctx"<<endl;
+        throw exception::CurlError("curl_easy_init",0);
     }
     
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
     curl_easy_setopt(curl, CURLOPT_PORT, port);
     
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -167,8 +280,9 @@ void Client::rpc_call(string& in,string& out)
     
     res=curl_easy_perform(curl);
     
-    //TODO: throw a exception
-    clog<<"status:"<<res<<endl;
+    if (res!=0) {
+        throw exception::CurlError("curl_easy_perform",res);
+    }
     
     curl_easy_cleanup(curl);
 }

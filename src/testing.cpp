@@ -23,14 +23,19 @@
 
 #include <n4d.hpp>
 
+#include <iostream>
+
 using namespace edupals;
+using namespace std;
 
 int main(int argc,char* argv[])
 {
     
-    n4d::Client client("localhost",9779);
+    n4d::Client client("https://localhost",9779);
     
-    client.call("VariablesManager","listvars");
+    variant::Variant value = client.call("VariablesManager","listvars");
+    
+    clog<<"response->"<<value<<endl;
     
     return 0;
 }
