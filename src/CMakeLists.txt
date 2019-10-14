@@ -16,6 +16,9 @@ install(TARGETS edupals-n4d
     LIBRARY DESTINATION "lib"
 )
 
+install(FILES "${PROJECT_SOURCE_DIR}/EdupalsN4DConfig.cmake"
+    DESTINATION "lib/cmake/EdupalsN4D"
+)
 
 #testing application
 add_executable(testing testing.cpp)
