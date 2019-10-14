@@ -157,15 +157,23 @@ Variant parse_value(rapidxml::xml_node<>* node_value)
 
 Variant Client::call(string plugin,string method)
 {
+    vector<Variant> params;
+    return call(plugin,method,params,this->credential);
+}
+
+Variant Client::call(string plugin,string method,vector<Variant> params)
+{
+    return call(plugin,method,params,this->credential);
+}
+
+Variant Client::call(string plugin,string method,vector<Variant> params, auth::Credential credential)
+{
     string out;
     string in;
     
-    vector<Variant> params;
     Variant ret;
     
     create_request(plugin,method,params,credential,out);
-    
-    clog<<"call 0:"<<endl;
     
     rpc_call(in,out);
     
@@ -214,29 +222,6 @@ Variant Client::call(string plugin,string method)
     }
     
     return ret;
-}
-
-Variant Client::call(string plugin,string method,vector<Variant> params)
-{
-    string out;
-    string in;
-    
-    create_request(plugin,method,params,credential,out);
-    
-    clog<<"call 1:"<<endl;
-    clog<<out<<endl;
-    
-    rpc_call(in,out);
-    
-    clog<<"response:"<<endl;
-    clog<<in<<endl;
-}
-
-Variant Client::call(string plugin,string method,vector<Variant> params, auth::Credential credential)
-{
-    string out;
-    
-    create_request(plugin,method,params,credential,out);
 }
 
 Client::~Client()
