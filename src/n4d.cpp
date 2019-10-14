@@ -94,7 +94,6 @@ Variant parse_value(rapidxml::xml_node<>* node_value)
     
     string name = node->name();
     string value = node->value();
-    clog<<name<<endl;
     
     if (name=="int" or name=="i4") {
         ret=std::stoi(value);
@@ -177,16 +176,18 @@ Variant Client::call(string plugin,string method,vector<Variant> params, auth::C
     
     rpc_call(in,out);
     
-    //in="<?xml version=\'1.0\'?><methodResponse> <params> <param> <value> <array><data><value><int>33</int></value><value><int>16</int></value></data></array></value></param> </params> </methodResponse>";
-    //in="<?xml version=\'1.0\'?><methodResponse><params><param><value> <struct><member><name>count</name><value><int>400</int></value></member></struct> </value></param> </params> </methodResponse>";
-    
     xml_document<> doc; 
-    
-    //TODO: check for exceptions
+
     char* memxml=new char[in.size()+1];
     std::memcpy(memxml,in.c_str(),in.size()+1);
     
-    doc.parse<0>(memxml);
+    try {
+        doc.parse<0>(memxml);
+    }
+    catch (rapidxml::parse_error& ex) {
+        delete [] memxml;
+        throw exception::BadXML(ex.what());
+    }
     
     delete [] memxml;
     
@@ -242,7 +243,6 @@ void Client::rpc_call(string& in,string& out)
 {
     CURL *curl;
     CURLcode res;
-    
     
     if (!curl_instance.ready) {
         throw exception::CurlError("curl_global_init",0);

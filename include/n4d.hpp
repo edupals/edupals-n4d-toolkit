@@ -119,8 +119,8 @@ namespace edupals
                 }
                 
                 /*!
-                 * 
-                 */
+                 * User name and password constructor
+                */
                 Credential(std::string user,std::string password)
                 {
                     type=Type::Password;
@@ -164,14 +164,30 @@ namespace edupals
             */
             Client(std::string address="https://localhost",int port=9779);
             
+            /*!
+             * Client using a user/password as default credential
+            */
             Client(std::string address,int port,std::string user,std::string password);
             
+            /*!
+             * Client using a key as default credential
+            */
             Client(std::string address,int port,std::string key);
             
+            /*!
+             * Perform a sync n4d call to Plugin.method
+            */
             variant::Variant call(std::string plugin,std::string method);
             
+            /*!
+             * Perform a sync n4d call to Plugin.method with given params
+            */
             variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> params);
             
+            /*!
+             * Perform a sync n4d call to Plugin.method with given params and
+             * custom credentials
+            */
             variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
             
             virtual ~Client();
