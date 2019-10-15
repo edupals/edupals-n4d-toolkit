@@ -34,6 +34,16 @@ namespace edupals
     {
         namespace exception
         {
+            class BadN4DResponse : public std::exception
+            {
+                public:
+                
+                const char* what() const throw()
+                {
+                    return "Malformed N4D method response";
+                }
+            };
+            
             class BadXML : public std::exception
             {
                 private:
@@ -148,14 +158,12 @@ namespace edupals
             int port;
             auth::Credential credential;
             
-            void rpc_call(std::string& in,std::string& out);
+            void post(std::string& in,std::string& out);
             
             void create_value(variant::Variant param,std::string& out);
 
-            void create_request(std::string plugin,
-                                std::string method,
+            void create_request(std::string method,
                                 std::vector<variant::Variant> params,
-                                auth::Credential credential,
                                 std::string& out);
             
             public:
@@ -174,6 +182,11 @@ namespace edupals
              * Client using a key as default credential
             */
             Client(std::string address,int port,std::string key);
+            
+            /*!
+             * Perform a raw xml-rpc call
+            */
+            variant::Variant rpc_call(std::string method,std::vector<variant::Variant> params);
             
             /*!
              * Perform a sync n4d call to Plugin.method
@@ -196,7 +209,7 @@ namespace edupals
             /*!
              * Checks whenever a user/password is valid in that server
             */
-            bool validate_user(std::string name,std::string value);
+            bool validate_user(std::string name,std::string password);
             
             /*!
              * Gets a list of available methods on server

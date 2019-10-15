@@ -154,27 +154,16 @@ Variant parse_value(rapidxml::xml_node<>* node_value)
     return ret;
 }
 
-Variant Client::call(string plugin,string method)
-{
-    vector<Variant> params;
-    return call(plugin,method,params,this->credential);
-}
-
-Variant Client::call(string plugin,string method,vector<Variant> params)
-{
-    return call(plugin,method,params,this->credential);
-}
-
-Variant Client::call(string plugin,string method,vector<Variant> params, auth::Credential credential)
+Variant Client::rpc_call(string method,vector<Variant> params)
 {
     string out;
     string in;
     
     Variant ret;
     
-    create_request(plugin,method,params,credential,out);
+    create_request(method,params,out);
     
-    rpc_call(in,out);
+    post(in,out);
     
     xml_document<> doc; 
 
@@ -189,23 +178,25 @@ Variant Client::call(string plugin,string method,vector<Variant> params, auth::C
         throw exception::BadXML(ex.what());
     }
     
-    delete [] memxml;
     
     rapidxml::xml_node<>* node_method = doc.first_node("methodResponse");
     
     if (!node_method) {
+        delete [] memxml;
         throw exception::BadXML("missing methodResponse node");
     }
     
     rapidxml::xml_node<>* node_params = node_method->first_node();
     
     if (!node_params) {
+        delete [] memxml;
         throw exception::BadXML("missing params or fault node");
     }
     
     string name=node_params->name();
     
     if (name=="fault") {
+        delete [] memxml;
         throw exception::FaultRPC("");
     }
     
@@ -221,6 +212,51 @@ Variant Client::call(string plugin,string method,vector<Variant> params, auth::C
             }
         }
     }
+    
+    delete [] memxml;
+    
+    return ret;
+}
+
+Variant Client::call(string plugin,string method)
+{
+    vector<Variant> params;
+    return call(plugin,method,params,this->credential);
+}
+
+Variant Client::call(string plugin,string method,vector<Variant> params)
+{
+    return call(plugin,method,params,this->credential);
+}
+
+Variant Client::call(string plugin,string method,vector<Variant> params, auth::Credential credential)
+{
+    Variant ret;
+    
+    //Build N4D header
+    vector<Variant> full_params;
+    
+    switch (credential.type) {
+        case auth::Type::Anonymous:
+            full_params.push_back("");
+        break;
+        
+        case auth::Type::Password:
+            full_params.push_back({credential.user,credential.password});
+        break;
+        
+        case auth::Type::Key:
+            full_params.push_back(credential.key);
+        break;
+    }
+    
+    full_params.push_back(plugin);
+    
+    for (Variant& param : params) {
+        full_params.push_back(param);
+    }
+    
+    ret=rpc_call(method,full_params);
     
     return ret;
 }
@@ -238,8 +274,8 @@ size_t response_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
         in->append(1,ptr[n]);
     }
 }
- 
-void Client::rpc_call(string& in,string& out)
+
+void Client::post(string& in,string& out)
 {
     CURL *curl;
     CURLcode res;
@@ -343,7 +379,7 @@ void Client::create_value(Variant value, string& out)
     out.append("</value>");
 }
 
-void Client::create_request(string plugin,string method,vector<Variant> params,auth::Credential credential,string& out)
+void Client::create_request(string method,vector<Variant> params,string& out)
 {
     out.clear();
     
@@ -352,60 +388,54 @@ void Client::create_request(string plugin,string method,vector<Variant> params,a
         out.append("<methodName>");
             out.append(method);
         out.append("</methodName>");
-    
-            out.append("<params>");
-                //credentials
+        out.append("<params>");
+            for (Variant& param : params) {
                 out.append("<param>");
-                    switch (credential.type) {
-                        case auth::Type::Anonymous:
-                            out.append("<value><string></string></value>");
-                        break;
-                        
-                        case auth::Type::Password:
-                            out.append("<value><array><data>");
-                            out.append("<value><string>");
-                            out.append(credential.user);
-                            out.append("</string></value>");
-                            out.append("<value><string>");
-                            out.append(credential.password);
-                            out.append("</string></value>");
-                            out.append("</data></array></value>");
-                        break;
-                        
-                        case auth::Type::Key:
-                            out.append("<value><string>");
-                            out.append(credential.key);
-                            out.append("</string></value>");
-                        break;
-                    }
+                    create_value(param,out);
                 out.append("</param>");
-                
-                //plugin
-                out.append("<param>");
-                out.append("<value><string>");
-                    out.append(plugin);
-                out.append("</string></value>");
-                out.append("</param>");
-                
-                //parameters
-                for (Variant param: params) {
-                    out.append("<param>");
-                        create_value(param,out);
-                    out.append("</param>");
-                }
-                
-            out.append("</params>");
-        out.append("</methodCall>");
+            }
+        out.append("</params>");
+    out.append("</methodCall>");
 }
 
-bool Client::validate_user(string name,string value)
+bool Client::validate_user(string name,string password)
 {
+    vector<Variant> params ;
+    
+    params.push_back(name);
+    params.push_back(password);
+    
+    Variant value = rpc_call("validate_user",params);
+    
+    try {
+        return value[0].get_boolean();
+    }
+    catch (std::exception& ex) {
+        throw exception::BadN4DResponse();
+    }
+    
     return false;
 }
 
 map<string,vector<string> > Client::get_methods()
 {
     map<string, vector<string> > plugins;
+    vector<Variant> params;
+    
+    Variant value = rpc_call("get_sorted_methods",params);
+    
+    try {
+        for (string& key : value.keys()) {
+            
+            for (size_t n=0;n<value[key].count();n++) {
+                
+                plugins[key].push_back(value[key][n].get_string());
+            }
+        }
+    }
+    catch (std::exception& ex) {
+        throw exception::BadN4DResponse();
+    }
     
     return plugins;
 }
