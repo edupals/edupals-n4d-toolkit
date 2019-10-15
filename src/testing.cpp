@@ -33,6 +33,19 @@ int main(int argc,char* argv[])
     
     n4d::Client client("https://localhost",9779);
     
+    clog<<"Method list:"<<endl;
+    map<string,vector<string> > plugins = client.get_methods();
+    
+    for (auto plugin: plugins) {
+        clog<<"Plugin: "<<plugin.first<<endl;
+        
+        for (string method : plugins[plugin.first]) {
+            clog<<"    "<<method<<endl;
+        }
+        
+        clog<<endl;
+    }
+    
     variant::Variant value = client.call("VariablesManager","listvars");
     
     clog<<"response->"<<value<<endl;
