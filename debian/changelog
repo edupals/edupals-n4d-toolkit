@@ -1,3 +1,14 @@
+edupals-n4d-toolkit (1.0.1.0) bionic; urgency=medium
+
+  * Master tag: 9ce70219a3df3cfa65845c02357b2624829b2c0f
+  * Added n4d get_methods
+  * Added n4d validate_user
+  * Added raw xmlrpc calls
+  * Fixed a bug parsing xml
+  * Overhauled code
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 15 Oct 2019 12:41:23 +0200
+
 edupals-n4d-toolkit (1.0.0.2) bionic; urgency=medium
 
   * Added libedupals-base as build dep (dev package will bring it in the future)
