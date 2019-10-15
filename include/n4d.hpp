@@ -25,6 +25,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <exception>
 
 namespace edupals
@@ -192,6 +193,16 @@ namespace edupals
             
             virtual ~Client();
             
+            /*!
+             * Checks whenever a user/password is valid in that server
+            */
+            bool validate_user(std::string name,std::string value);
+            
+            /*!
+             * Gets a list of available methods on server
+             * \returns a map of string->vector of strings
+            */
+            std::map<std::string,std::vector<std::string> > get_methods();
         };
     }
 }

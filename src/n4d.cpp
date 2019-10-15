@@ -397,3 +397,15 @@ void Client::create_request(string plugin,string method,vector<Variant> params,a
             out.append("</params>");
         out.append("</methodCall>");
 }
+
+bool Client::validate_user(string name,string value)
+{
+    return false;
+}
+
+map<string,vector<string> > Client::get_methods()
+{
+    map<string, vector<string> > plugins;
+    
+    return plugins;
+}
