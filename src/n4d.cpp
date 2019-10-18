@@ -273,6 +273,8 @@ size_t response_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
     for (size_t n=0;n<nmemb;n++) {
         in->append(1,ptr[n]);
     }
+    
+    return nmemb;
 }
 
 void Client::post(string& in,string& out)
