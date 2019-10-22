@@ -58,7 +58,6 @@ class CurlFactory
 
 static CurlFactory curl_instance;
 
-
 Client::Client(string address,int port)
 {
     this->address=address;
@@ -177,7 +176,6 @@ Variant Client::rpc_call(string method,vector<Variant> params)
         delete [] memxml;
         throw exception::BadXML(ex.what());
     }
-    
     
     rapidxml::xml_node<>* node_method = doc.first_node("methodResponse");
     
