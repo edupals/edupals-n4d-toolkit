@@ -21,6 +21,9 @@
  *
  */
 
+#ifndef EDUPALS_N4D
+#define EDUPALS_N4D
+
 #include <variant.hpp>
 
 #include <string>
@@ -219,3 +222,5 @@ namespace edupals
         };
     }
 }
+
+#endif

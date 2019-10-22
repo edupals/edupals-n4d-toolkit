@@ -58,7 +58,6 @@ class CurlFactory
 
 static CurlFactory curl_instance;
 
-
 Client::Client(string address,int port)
 {
     this->address=address;
@@ -178,7 +177,6 @@ Variant Client::rpc_call(string method,vector<Variant> params)
         throw exception::BadXML(ex.what());
     }
     
-    
     rapidxml::xml_node<>* node_method = doc.first_node("methodResponse");
     
     if (!node_method) {
@@ -273,6 +271,8 @@ size_t response_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
     for (size_t n=0;n<nmemb;n++) {
         in->append(1,ptr[n]);
     }
+    
+    return nmemb;
 }
 
 void Client::post(string& in,string& out)
