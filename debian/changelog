@@ -1,9 +1,16 @@
-edupals-n4d-toolkit (1.0.2.0) bionic; urgency=medium
+edupals-n4d-toolkit (1.0.3.0) bionic; urgency=medium
 
   * Master tag: 57ea6e7ea122545c520ccedfd6edc91e853e783f
   * Added header recursive fence macros
 
  -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 22 Oct 2019 10:15:29 +0200
+
+ edupals-n4d-toolkit (1.0.2.0) bionic; urgency=medium
+
+  * Master tag: 896f8d757bf2584bcb97af26eec8bafad84dc405
+  * Fixed bug in curl write_cb
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Fri, 18 Oct 2019 14:22:26 +0200
 
 edupals-n4d-toolkit (1.0.1.0) bionic; urgency=medium
 
