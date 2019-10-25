@@ -27,7 +27,9 @@
 #include <rapidxml/rapidxml.hpp>
 
 #include <iostream>
+#include <iomanip>
 #include <cstring>
+#include <sstream>
 
 using namespace edupals;
 using namespace edupals::variant;
@@ -95,16 +97,33 @@ Variant parse_value(rapidxml::xml_node<>* node_value)
     string value = node->value();
     
     if (name=="int" or name=="i4") {
-        ret=std::stoi(value);
+        stringstream in;
+        in.imbue(std::locale("C"));
+        in.str(value);
+        int ivalue;
+        in>>ivalue;
+        
+        ret=ivalue;
     }
     
     if (name=="double") {
-        ret=std::stod(value);
+        stringstream in;
+        in.imbue(std::locale("C"));
+        in.str(value);
+        double dvalue;
+        in>>dvalue;
+        ret=dvalue;
     }
     
     if (name=="boolean") {
-        int b=std::stoi(value);
-        ret=(b==1);
+        stringstream in;
+        in.imbue(std::locale("C"));
+        in.str(value);
+        int ivalue;
+        
+        in>>ivalue;
+        
+        ret=(ivalue==1);
     }
     
     if (name=="string") {
@@ -155,19 +174,43 @@ Variant parse_value(rapidxml::xml_node<>* node_value)
 
 Variant Client::rpc_call(string method,vector<Variant> params)
 {
-    string out;
-    string in;
+    stringstream out;
+    stringstream in;
+    
+    out.imbue(std::locale("C"));
+    out<<std::setprecision(10)<<std::fixed;
+    
+    in.imbue(std::locale("C"));
+    in<<std::setprecision(10)<<std::fixed;
     
     Variant ret;
     
     create_request(method,params,out);
     
+#ifndef NDEBUG
+    clog<<"**** OUT ****"<<endl;
+    clog<<out.str()<<endl;
+    clog<<"*************"<<endl;
+#endif
+    
     post(in,out);
     
-    xml_document<> doc; 
+#ifndef NDEBUG
+    clog<<"****  IN  ****"<<endl;
+    clog<<in.str()<<endl;
+    clog<<"**************"<<endl;
+#endif
+    
+    xml_document<> doc;
+    
+    /*
+        I guess, It depends on compiler but from the theory up to three
+        input string copies are hold into memory
+    */
+    string incoming=in.str();
 
-    char* memxml=new char[in.size()+1];
-    std::memcpy(memxml,in.c_str(),in.size()+1);
+    char* memxml=new char[incoming.size()+1];
+    std::memcpy(memxml,incoming.c_str(),incoming.size()+1);
     
     try {
         doc.parse<0>(memxml);
@@ -195,6 +238,7 @@ Variant Client::rpc_call(string method,vector<Variant> params)
     
     if (name=="fault") {
         delete [] memxml;
+        //TODO: Add fault string
         throw exception::FaultRPC("");
     }
     
@@ -266,16 +310,16 @@ Client::~Client()
 
 size_t response_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
-    string* in=static_cast<string *>(userdata);
+    stringstream* in=static_cast<stringstream*>(userdata);
     
     for (size_t n=0;n<nmemb;n++) {
-        in->append(1,ptr[n]);
+        in->put(ptr[n]);
     }
     
     return nmemb;
 }
 
-void Client::post(string& in,string& out)
+void Client::post(stringstream& in,stringstream& out)
 {
     CURL *curl;
     CURLcode res;
@@ -295,7 +339,10 @@ void Client::post(string& in,string& out)
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
     
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS,out.c_str());
+    string data=out.str();
+    
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS,data.c_str());
+    
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,&in);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,response_cb);
     
@@ -308,94 +355,94 @@ void Client::post(string& in,string& out)
     curl_easy_cleanup(curl);
 }
 
-void Client::create_value(Variant value, string& out)
+void Client::create_value(Variant value, stringstream& out)
 {
-    out.append("<value>");
+    
+    out<<"<value>";
     switch (value.type()) {
         
         case variant::Type::Boolean:
-            out.append("<boolean>");
+            out<<"<boolean>";
             if (value.get_boolean()) {
-                out.append("1");
+                out<<"1";
             }
             else {
-                out.append("0");
+                out<<"0";
             }
-            out.append("</boolean>");
+            out<<"</boolean>";
         break;
         
         case variant::Type::Int32:
-            out.append("<int>");
-            out.append(std::to_string(value.get_int32()));
-            out.append("</int>");
+            out<<"<int>";
+            out<<value.get_int32();
+            out<<"</int>";
         break;
         
         // floats are encoded as doubles (losing precission)
         case variant::Type::Float:
-            out.append("<double>");
-            out.append(std::to_string(value.get_float()));
-            out.append("</double>");
+            out<<"<double>";
+            out<<value.get_float();
+            out<<"</double>";
         break;
         
         case variant::Type::Double:
-            out.append("<double>");
-            out.append(std::to_string(value.get_double()));
-            out.append("</double>");
+            out<<"<double>";
+            out<<value.get_double();
+            out<<"</double>";
         break;
         
         case variant::Type::String:
-            out.append("<string>");
-            out.append(value.get_string());
-            out.append("</string>");
+            out<<"<string>";
+            out<<value.get_string();
+            out<<"</string>";
         break;
         
         case variant::Type::Array:
-            out.append("<array>");
-            out.append("<data>");
+            out<<"<array>";
+            out<<"<data>";
                 for(size_t n=0;n<value.count();n++) {
                     create_value(value[n],out);
                 }
-            out.append("</data>");
-            out.append("</array>");
+            out<<"</data>";
+            out<<"</array>";
         break;
         
         case variant::Type::Struct:
-            out.append("<struct>");
+            out<<"<struct>";
             
             for (string& key: value.keys()) {
-                out.append("<member>");
-                out.append("<name>");
-                out.append(key);
-                out.append("</name>");
+                out<<"<member>";
+                out<<"<name>";
+                out<<key;
+                out<<"</name>";
                 
                 create_value(value[key],out);
                 
-                out.append("</member>");
+                out<<"</member>";
             }
             
-            out.append("</struct>");
+            out<<"</struct>";
         break;
     }
-    out.append("</value>");
+    out<<"</value>";
 }
 
-void Client::create_request(string method,vector<Variant> params,string& out)
+void Client::create_request(string method,vector<Variant> params,stringstream& out)
 {
-    out.clear();
     
-    out.append("<?xml version=\"1.0\"?>");
-    out.append("<methodCall>");
-        out.append("<methodName>");
-            out.append(method);
-        out.append("</methodName>");
-        out.append("<params>");
+    out<<"<?xml version=\"1.0\"?>";
+    out<<"<methodCall>";
+        out<<"<methodName>";
+            out<<method;
+        out<<"</methodName>";
+        out<<"<params>";
             for (Variant& param : params) {
-                out.append("<param>");
+                out<<"<param>";
                     create_value(param,out);
-                out.append("</param>");
+                out<<"</param>";
             }
-        out.append("</params>");
-    out.append("</methodCall>");
+        out<<"</params>";
+    out<<"</methodCall>";
 }
 
 bool Client::validate_user(string name,string password)

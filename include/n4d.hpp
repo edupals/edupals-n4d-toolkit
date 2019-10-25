@@ -26,6 +26,7 @@
 
 #include <variant.hpp>
 
+#include <sstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -161,13 +162,13 @@ namespace edupals
             int port;
             auth::Credential credential;
             
-            void post(std::string& in,std::string& out);
+            void post(std::stringstream& in,std::stringstream& out);
             
-            void create_value(variant::Variant param,std::string& out);
+            void create_value(variant::Variant param,std::stringstream& out);
 
             void create_request(std::string method,
                                 std::vector<variant::Variant> params,
-                                std::string& out);
+                                std::stringstream& out);
             
             public:
             
