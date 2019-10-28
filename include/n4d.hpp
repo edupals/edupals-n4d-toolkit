@@ -220,6 +220,12 @@ namespace edupals
              * \returns a map of string->vector of strings
             */
             std::map<std::string,std::vector<std::string> > get_methods();
+            
+            /*!
+                Checks whenever the server is running at specified address and port
+                Internally it calls a get_methods but no exception is thrown
+            */
+            bool running();
         };
     }
 }

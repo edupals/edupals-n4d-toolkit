@@ -486,3 +486,17 @@ map<string,vector<string> > Client::get_methods()
     
     return plugins;
 }
+
+bool Client::running()
+{
+    bool status=true;
+    
+    try {
+        auto none=get_methods();
+    }
+    catch (std::exception& ex) {
+        status=false;
+    }
+    
+    return status;
+}
