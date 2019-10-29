@@ -33,6 +33,16 @@ int main(int argc,char* argv[])
     
     n4d::Client client("https://localhost",9779);
     
+    clog<<"Checking server...";
+    
+    if (!client.running()) {
+        
+        clog<<"fail"<<endl;
+        return 1;
+    }
+    clog<<"ok"<<endl;
+    
+    
     clog<<"Method list:"<<endl;
     map<string,vector<string> > plugins = client.get_methods();
     

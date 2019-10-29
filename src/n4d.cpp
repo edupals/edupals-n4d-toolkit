@@ -349,6 +349,7 @@ void Client::post(stringstream& in,stringstream& out)
     res=curl_easy_perform(curl);
     
     if (res!=0) {
+        curl_easy_cleanup(curl);
         throw exception::CurlError("curl_easy_perform",res);
     }
     
