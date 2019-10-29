@@ -1,4 +1,4 @@
-edupals-n4d-toolkit (1.0.4.0) bionic; urgency=medium
+edupals-n4d-toolkit (1.1.0.0) bionic; urgency=medium
 
   * Master tag: 75b93e9e41a8d639234672fe831633d61456f423
   * Fixed locale float decimal comma mess
