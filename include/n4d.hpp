@@ -26,6 +26,7 @@
 
 #include <variant.hpp>
 
+#include <sstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -161,13 +162,13 @@ namespace edupals
             int port;
             auth::Credential credential;
             
-            void post(std::string& in,std::string& out);
+            void post(std::stringstream& in,std::stringstream& out);
             
-            void create_value(variant::Variant param,std::string& out);
+            void create_value(variant::Variant param,std::stringstream& out);
 
             void create_request(std::string method,
                                 std::vector<variant::Variant> params,
-                                std::string& out);
+                                std::stringstream& out);
             
             public:
             
@@ -219,6 +220,12 @@ namespace edupals
              * \returns a map of string->vector of strings
             */
             std::map<std::string,std::vector<std::string> > get_methods();
+            
+            /*!
+                Checks whenever the server is running at specified address and port
+                Internally it calls a get_methods but no exception is thrown
+            */
+            bool running();
         };
     }
 }
