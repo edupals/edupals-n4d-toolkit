@@ -64,12 +64,14 @@ Client::Client(string address,int port)
 {
     this->address=address;
     this->port=port;
+    this->verbose=false;
 }
 
 Client::Client(string address,int port,string user,string password)
 {
     this->address=address;
     this->port=port;
+    this->verbose=false;
     
     credential=auth::Credential(user,password);
 }
@@ -78,6 +80,7 @@ Client::Client(string address,int port,string key)
 {
     this->address=address;
     this->port=port;
+    this->verbose=false;
     
     credential=auth::Credential(key);
 }
@@ -162,7 +165,7 @@ Variant parse_value(rapidxml::xml_node<>* node_value)
             rapidxml::xml_node<>* node_value = node_member->first_node("value");
             
             if (node_name and node_value) {
-                ret[node_name->value()]=parse_value(node_value);
+                ret[string(node_name->value())]=parse_value(node_value);
             }
             
             node_member=node_member->next_sibling("member");
@@ -187,19 +190,19 @@ Variant Client::rpc_call(string method,vector<Variant> params)
     
     create_request(method,params,out);
     
-#ifndef NDEBUG
-    clog<<"**** OUT ****"<<endl;
-    clog<<out.str()<<endl;
-    clog<<"*************"<<endl;
-#endif
+    if (verbose) {
+        clog<<"**** OUT ****"<<endl;
+        clog<<out.str()<<endl;
+        clog<<"*************"<<endl;
+    }
     
     post(in,out);
     
-#ifndef NDEBUG
-    clog<<"****  IN  ****"<<endl;
-    clog<<in.str()<<endl;
-    clog<<"**************"<<endl;
-#endif
+    if (verbose) {
+        clog<<"****  IN  ****"<<endl;
+        clog<<in.str()<<endl;
+        clog<<"**************"<<endl;
+    }
     
     xml_document<> doc;
     
@@ -500,4 +503,9 @@ bool Client::running()
     }
     
     return status;
+}
+
+void Client::set_verbose(bool value)
+{
+    this->verbose=value;
 }

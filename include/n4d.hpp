@@ -157,6 +157,7 @@ namespace edupals
         class Client
         {
             protected:
+            bool verbose;
             
             std::string address;
             int port;
@@ -215,6 +216,8 @@ namespace edupals
             */
             bool validate_user(std::string name,std::string password);
             
+            std::vector<std::string> get_groups(auth::Credential credential); 
+            
             /*!
              * Gets a list of available methods on server
              * \returns a map of string->vector of strings
@@ -226,6 +229,11 @@ namespace edupals
                 Internally it calls a get_methods but no exception is thrown
             */
             bool running();
+            
+            /*!
+                Set verbose xmlrpc traffic to stderr
+            */
+            void set_verbose(bool value);
         };
     }
 }
