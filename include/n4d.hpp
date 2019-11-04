@@ -154,9 +154,17 @@ namespace edupals
             };
         }
         
+        enum Option
+        {
+            None = 0x00,
+            Verbose = 0x01, /*! dump xml traffic into stderr */
+            All = 0xff
+        };
+        
         class Client
         {
             protected:
+            int flags;
             
             std::string address;
             int port;
@@ -216,6 +224,11 @@ namespace edupals
             bool validate_user(std::string name,std::string password);
             
             /*!
+                Get the list of groups an user belongs to
+            */
+            std::vector<std::string> get_groups(std::string name,std::string password);
+            
+            /*!
              * Gets a list of available methods on server
              * \returns a map of string->vector of strings
             */
@@ -226,6 +239,16 @@ namespace edupals
                 Internally it calls a get_methods but no exception is thrown
             */
             bool running();
+            
+            /*!
+                Set flags
+            */
+            void set_flags(int flags);
+            
+            /*!
+                Get current flags
+            */
+            int get_flags();
         };
     }
 }

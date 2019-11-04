@@ -32,6 +32,7 @@ int main(int argc,char* argv[])
 {
     
     n4d::Client client("https://localhost",9779);
+    client.set_flags(n4d::Option::Verbose);
     
     clog<<"Checking server...";
     
