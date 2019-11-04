@@ -64,14 +64,14 @@ Client::Client(string address,int port)
 {
     this->address=address;
     this->port=port;
-    this->verbose=false;
+    this->flags=Option::None;
 }
 
 Client::Client(string address,int port,string user,string password)
 {
     this->address=address;
     this->port=port;
-    this->verbose=false;
+    this->flags=Option::None;
     
     credential=auth::Credential(user,password);
 }
@@ -80,7 +80,7 @@ Client::Client(string address,int port,string key)
 {
     this->address=address;
     this->port=port;
-    this->verbose=false;
+    this->flags=Option::None;
     
     credential=auth::Credential(key);
 }
@@ -190,7 +190,7 @@ Variant Client::rpc_call(string method,vector<Variant> params)
     
     create_request(method,params,out);
     
-    if (verbose) {
+    if (flags & Option::Verbose) {
         clog<<"**** OUT ****"<<endl;
         clog<<out.str()<<endl;
         clog<<"*************"<<endl;
@@ -198,7 +198,7 @@ Variant Client::rpc_call(string method,vector<Variant> params)
     
     post(in,out);
     
-    if (verbose) {
+    if (flags & Option::Verbose) {
         clog<<"****  IN  ****"<<endl;
         clog<<in.str()<<endl;
         clog<<"**************"<<endl;
@@ -468,6 +468,30 @@ bool Client::validate_user(string name,string password)
     return false;
 }
 
+vector<string> Client::get_groups(string name,string password)
+{
+    vector<string> groups;
+    vector<Variant> params;
+    
+    params.push_back(name);
+    params.push_back(password);
+    
+    Variant value = rpc_call("validate_user",params);
+    
+    try {
+        int num=value[1].count();
+        
+        for (int n=0;n<num;n++) {
+            groups.push_back(value[1][n].get_string());
+        }
+    }
+    catch (std::exception& ex) {
+        throw exception::BadN4DResponse();
+    }
+    
+    return groups;
+}
+
 map<string,vector<string> > Client::get_methods()
 {
     map<string, vector<string> > plugins;
@@ -505,7 +529,12 @@ bool Client::running()
     return status;
 }
 
-void Client::set_verbose(bool value)
+void Client::set_flags(int flags)
 {
-    this->verbose=value;
+    this->flags=flags;
+}
+
+int Client::get_flags()
+{
+    return flags;
 }

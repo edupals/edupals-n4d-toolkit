@@ -154,10 +154,17 @@ namespace edupals
             };
         }
         
+        enum Option
+        {
+            None = 0x00,
+            Verbose = 0x01, /*! dump xml traffic into stderr */
+            All = 0xff
+        };
+        
         class Client
         {
             protected:
-            bool verbose;
+            int flags;
             
             std::string address;
             int port;
@@ -216,7 +223,10 @@ namespace edupals
             */
             bool validate_user(std::string name,std::string password);
             
-            std::vector<std::string> get_groups(auth::Credential credential); 
+            /*!
+                Get the list of groups an user belongs to
+            */
+            std::vector<std::string> get_groups(std::string name,std::string password);
             
             /*!
              * Gets a list of available methods on server
@@ -231,9 +241,14 @@ namespace edupals
             bool running();
             
             /*!
-                Set verbose xmlrpc traffic to stderr
+                Set flags
             */
-            void set_verbose(bool value);
+            void set_flags(int flags);
+            
+            /*!
+                Get current flags
+            */
+            int get_flags();
         };
     }
 }
