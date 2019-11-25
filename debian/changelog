@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (1.2.1.0) bionic; urgency=medium
+
+  * Matching edupals-base 1.2.0.0 as minimum requirement
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 25 Nov 2019 14:40:38 +0100
+
 edupals-n4d-toolkit (1.2.0.0) bionic; urgency=medium
 
   * Master tag: 89df3cd758c7b9afe295cee4b73c56b2aa93192f
