@@ -165,7 +165,7 @@ Variant parse_value(rapidxml::xml_node<>* node_value)
             rapidxml::xml_node<>* node_value = node_member->first_node("value");
             
             if (node_name and node_value) {
-                ret[string(node_name->value())]=parse_value(node_value);
+                ret[node_name->value()]=parse_value(node_value);
             }
             
             node_member=node_member->next_sibling("member");
