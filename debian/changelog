@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (1.2.1.1) bionic; urgency=medium
+
+  * Renamed to fullfill with debian policy 
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 04 Dec 2019 10:09:17 +0100
+
 edupals-n4d-toolkit (1.2.1.0) bionic; urgency=medium
 
   * Matching edupals-base 1.2.0.0 as minimum requirement
