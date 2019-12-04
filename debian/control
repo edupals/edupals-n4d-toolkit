@@ -15,6 +15,6 @@ Description: Edupals C++ N4D client toolkit
 
 Package: libedupals-n4d-dev
 Architecture: any
-Depends: ${misc:Depends}, libedupals-n4d1, libedupals-base-dev (>=1.2.0.0), librapidxml-dev, libcurl4-openssl-dev
+Depends: ${misc:Depends}, libedupals-n4d1 (= ${binary:Version}), libedupals-base-dev (>=1.2.0.0), librapidxml-dev, libcurl4-openssl-dev
 Description: Edupals C++ N4D client toolkit development files
  Development files (headers and cmakes) for Edupals N4D toolkit
