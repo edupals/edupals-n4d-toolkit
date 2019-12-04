@@ -1,2 +1,3 @@
 usr/include/edupals /usr/include/
 usr/lib/cmake/EdupalsN4D /usr/lib/cmake/
+usr/lib/lib*.so    /usr/lib/
