@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (1.2.1.2) bionic; urgency=medium
+
+  * Added conflict and replace with deprecated binary package
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 16 Dec 2019 09:41:14 +0100
+
 edupals-n4d-toolkit (1.2.1.1) bionic; urgency=medium
 
   * Renamed to fullfill with debian policy 

@@ -2,7 +2,7 @@ Source: edupals-n4d-toolkit
 Section: libs
 Priority: optional
 Maintainer: Enrique Medina Gremaldos <quiqueiii@gmail.com>
-Build-Depends: debhelper (>=9), cmake, make, g++, pkg-config, libedupals-base (>=1.2.0.0), libedupals-base-dev (>=1.2.0.0), librapidxml-dev, libcurl4-openssl-dev
+Build-Depends: debhelper (>=9), cmake, make, g++, pkg-config, libedupals-base1 (>=1.2.0.0), libedupals-base-dev (>=1.2.0.0), librapidxml-dev, libcurl4-openssl-dev
 Standards-Version: 3.9.7
 Homepage: https://github.com/edupals/edupals-n4d-toolkit
 
@@ -10,11 +10,13 @@ Package: libedupals-n4d1
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libedupals-base1 (>= 1.2.0.0)
 Provides: libedupals-n4d
+Replaces: libedupals-n4d
+Conflicts: libedupals-n4d
 Description: Edupals C++ N4D client toolkit
  A C++ N4D client toolkit
 
 Package: libedupals-n4d-dev
 Architecture: any
-Depends: ${misc:Depends}, libedupals-n4d1 (= ${binary:Version}), libedupals-base-dev (>=1.2.0.0), librapidxml-dev, libcurl4-openssl-dev
+Depends: ${misc:Depends}, libedupals-n4d1 (= ${binary:Version}), libedupals-base-dev (>=1.2.0.0), librapidxml-dev, libcurl4-openssl-dev, cmake, make, g++, pkg-config
 Description: Edupals C++ N4D client toolkit development files
  Development files (headers and cmakes) for Edupals N4D toolkit
