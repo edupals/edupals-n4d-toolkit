@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (2.0.0.0) bionic; urgency=medium
+
+  * Matched 2.0 version of edupals-base
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 31 Mar 2020 11:33:32 +0200
+
 edupals-n4d-toolkit (1.2.1.2) bionic; urgency=medium
 
   * Added conflict and replace with deprecated binary package
