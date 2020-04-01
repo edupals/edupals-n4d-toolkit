@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (2.0.0.1) bionic; urgency=medium
+
+  * Updated soname to 2
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 01 Apr 2020 11:42:45 +0200
+
 edupals-n4d-toolkit (2.0.0.0) bionic; urgency=medium
 
   * Matched 2.0 version of edupals-base
