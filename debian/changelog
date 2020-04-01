@@ -1,6 +1,7 @@
 edupals-n4d-toolkit (2.0.0.0) bionic; urgency=medium
 
   * Matched 2.0 version of edupals-base
+  * master tag: f68d1d92b3e174b46f5eee7c4c25b45f60f26ccb
 
  -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 31 Mar 2020 11:33:32 +0200
 
