@@ -1,6 +1,7 @@
 edupals-n4d-toolkit (2.0.0.1) bionic; urgency=medium
 
-  * Updated soname to 2
+  * Updated library soname to 2
+  * master tag: 5d528f79becad40e5eb8bff5d72c690f7dd5e254
 
  -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 01 Apr 2020 11:42:45 +0200
 
