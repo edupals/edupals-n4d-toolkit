@@ -1,3 +1,10 @@
+edupals-n4d-toolkit (2.0.1.0) bionic; urgency=medium
+
+  * master tag: 16b954560e4c243828dc94fb233f9997f7e38ee9
+  * Using a custom Key class instead of a simple string
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 27 Apr 2020 08:57:31 +0200
+
 edupals-n4d-toolkit (2.0.0.2) bionic; urgency=medium
 
   * Fixed package name
