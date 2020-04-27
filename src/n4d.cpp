@@ -60,6 +60,25 @@ class CurlFactory
 
 static CurlFactory curl_instance;
 
+bool auth::Key::valid()
+{
+    // based on current N4D ticket generation method
+    if (value.size()==50) {
+        for (char c:value) {
+            if ( (c>='0' and c<='9') or
+                (c>='a' and c<='z') or
+                (c>='A' and c<='Z')) {
+                continue;
+            }
+            
+            return false;
+        }
+        return true;
+    }
+    
+    return false;
+}
+
 Client::Client(string address,int port)
 {
     this->address=address;
@@ -76,13 +95,13 @@ Client::Client(string address,int port,string user,string password)
     credential=auth::Credential(user,password);
 }
 
-Client::Client(string address,int port,string key)
+Client::Client(string address,int port,string user,auth::Key key)
 {
     this->address=address;
     this->port=port;
     this->flags=Option::None;
     
-    credential=auth::Credential(key);
+    credential=auth::Credential(user,key);
 }
 
 Variant parse_value(rapidxml::xml_node<>* node_value)
@@ -287,11 +306,11 @@ Variant Client::call(string plugin,string method,vector<Variant> params, auth::C
         break;
         
         case auth::Type::Password:
-            full_params.push_back({credential.user,credential.password});
+            full_params.push_back({credential.user, credential.password});
         break;
         
         case auth::Type::Key:
-            full_params.push_back(credential.key);
+            full_params.push_back({credential.user, credential.key.value});
         break;
     }
     

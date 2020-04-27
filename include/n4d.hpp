@@ -116,12 +116,37 @@ namespace edupals
                 Key
             };
             
+            class Key
+            {
+                public:
+                
+                std::string value;
+                
+                Key()
+                {
+                }
+                
+                /*!
+                 * Create a N4D key from string
+                */
+                Key(std::string key)
+                {
+                    value=key;
+                }
+                
+                /*!
+                 * Checks whenever Key is properly generated
+                */
+                bool valid();
+                
+            };
+            
             class Credential
             {
                 public:
                 std::string user;
                 std::string password;
-                std::string key;
+                Key key;
                 
                 Type type;
                 
@@ -138,19 +163,21 @@ namespace edupals
                 */
                 Credential(std::string user,std::string password)
                 {
-                    type=Type::Password;
                     this->user=user;
                     this->password=password;
+                    this->type=Type::Password;
                 }
                 
                 /*!
                  * Key constructor
                 */
-                Credential(std::string key)
+                Credential(std::string user,Key key)
                 {
-                    type=Type::Key;
+                    this->type=Type::Key;
+                    this->user=user;
                     this->key=key;
                 }
+                
             };
         }
         
@@ -193,7 +220,7 @@ namespace edupals
             /*!
              * Client using a key as default credential
             */
-            Client(std::string address,int port,std::string key);
+            Client(std::string address,int port,std::string user,auth::Key key);
             
             /*!
              * Perform a raw xml-rpc call
