@@ -36,8 +36,89 @@ namespace edupals
 {
     namespace n4d
     {
+        /*! N4D server error codes */
+        enum class ErrorCode : int
+        {
+            UnknownClass = -40,
+            UnknownMethod = -30,
+            UserNotAllowed = -20,
+            AuthenticationFailed = -10,
+            InvalidResponse = -5,
+            InvalidArguments = -3,
+            CallFailed = -1,
+            CallSuccessful = 0
+        };
+        
         namespace exception
         {
+            class UnknownClass: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UnknownClass(std::string& name)
+                {
+                    msg="Class "+name+" not found";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class UnknownMethod: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UnknownMethod(std::string& name,std::string& method)
+                {
+                    msg="Method "+name+"::"+method+"() not found";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class UserNotAllowed: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UserNotAllowed(std::string& user,std::string& name,std::string& method)
+                {
+                    msg=user+" not allowed to "+name+"::"+method+"()";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class AuthenticationFailed: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                AuthenticationFailed(std::string& user)
+                {
+                    msg="Authentication failed for user "+user;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
             class BadN4DResponse : public std::exception
             {
                 public:
