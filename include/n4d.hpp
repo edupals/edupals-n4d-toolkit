@@ -170,6 +170,40 @@ namespace edupals
                 }
             };
             
+            class CallFailed: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                CallFailed(std::string& name,std::string& method,int code)
+                {
+                    msg=name+"::"+method+"() returned error code "+ std::to_string(code);
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class ServerError : public std::exception
+            {
+                private:
+                std::string msg;
+                
+                public:
+                
+                ServerError(std::string message)
+                {
+                    msg=message;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+                
             class BadN4DResponse : public std::exception
             {
                 public:
