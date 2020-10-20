@@ -119,6 +119,57 @@ namespace edupals
                 }
             };
             
+            class InvalidMethodResponse: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InvalidMethodResponse(std::string& name,std::string& method)
+                {
+                    msg="Invalid response from "+name+"::"+method+"()";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class InvalidServerResponse: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InvalidServerResponse(std::string& server)
+                {
+                    msg="Invalid response from server "+server;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class InvalidArguments: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InvalidArguments(std::string& name,std::string& method)
+                {
+                    msg="Invalid number of arguments for "+name+"::"+method+"()";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
             class BadN4DResponse : public std::exception
             {
                 public:
