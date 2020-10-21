@@ -37,7 +37,7 @@ namespace edupals
     namespace n4d
     {
         /*! N4D server error codes */
-        enum class ErrorCode : int
+        enum ErrorCode
         {
             UnknownClass = -40,
             UnknownMethod = -30,
@@ -187,6 +187,23 @@ namespace edupals
                 }
             };
             
+            class UnknownCode: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UnknownCode(std::string& name,std::string& method,int code)
+                {
+                    msg=name+"::"+method+"() returned an unknown error code "+ std::to_string(code);
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
             class ServerError : public std::exception
             {
                 private:
@@ -194,9 +211,12 @@ namespace edupals
                 
                 public:
                 
-                ServerError(std::string message)
+                uint64_t code;
+                
+                ServerError(uint64_t code, std::string message)
                 {
-                    msg=message;
+                    msg="["+std::to_string(code)+"]:"+message;
+                    this->code=code;
                 }
                 
                 const char* what() const throw()
@@ -204,71 +224,6 @@ namespace edupals
                     return msg.c_str();
                 }
                 
-            class BadN4DResponse : public std::exception
-            {
-                public:
-                
-                const char* what() const throw()
-                {
-                    return "Malformed N4D method response";
-                }
-            };
-            
-            class BadXML : public std::exception
-            {
-                private:
-                std::string msg;
-                
-                public:
-                
-                BadXML(std::string info)
-                {
-                    const std::string header="Bad XML response: ";
-                    msg=header+info;
-                }
-                
-                const char* what() const throw()
-                {
-                    return msg.c_str();
-                }
-            };
-            
-            class FaultRPC : public std::exception
-            {
-                private:
-                std::string msg;
-                
-                public:
-                
-                FaultRPC(std::string info)
-                {
-                    const std::string header="Fault RPC: ";
-                    msg=header+info;
-                }
-                
-                const char* what() const throw()
-                {
-                    return msg.c_str();
-                }
-            };
-            
-            class CurlError : public std::exception
-            {
-                private:
-                std::string msg;
-                
-                public:
-                
-                CurlError(std::string info,long int id)
-                {
-                    const std::string header="Curl error: ";
-                    msg=header+info+"("+std::to_string(id)+")";
-                }
-                
-                const char* what() const throw()
-                {
-                    return msg.c_str();
-                }
             };
         }
         
@@ -370,6 +325,8 @@ namespace edupals
             void create_request(std::string method,
                                 std::vector<variant::Variant> params,
                                 std::stringstream& out);
+            
+            bool validate_response(variant::Variant response);
             
             public:
             

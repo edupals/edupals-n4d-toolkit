@@ -239,21 +239,21 @@ Variant Client::rpc_call(string method,vector<Variant> params)
     }
     catch (rapidxml::parse_error& ex) {
         delete [] memxml;
-        throw exception::BadXML(ex.what());
+        throw exception::ServerError(0,ex.what());
     }
     
     rapidxml::xml_node<>* node_method = doc.first_node("methodResponse");
     
     if (!node_method) {
         delete [] memxml;
-        throw exception::BadXML("missing methodResponse node");
+        throw exception::ServerError(0,"xml-rpc: missing methodResponse node");
     }
     
     rapidxml::xml_node<>* node_params = node_method->first_node();
     
     if (!node_params) {
         delete [] memxml;
-        throw exception::BadXML("missing params or fault node");
+        throw exception::ServerError(0,"xml-rpc: missing params or fault node");
     }
     
     string name=node_params->name();
@@ -261,7 +261,7 @@ Variant Client::rpc_call(string method,vector<Variant> params)
     if (name=="fault") {
         delete [] memxml;
         //TODO: Add fault string
-        throw exception::FaultRPC("");
+        throw exception::ServerError(0,"xml-rpc: fault response not supported");
     }
     
     if (name=="params") {
@@ -275,6 +275,11 @@ Variant Client::rpc_call(string method,vector<Variant> params)
                 ret=parse_value(node_value);
             }
         }
+    }
+    
+    if (ret.none()) {
+        throw exception::ServerError(0,"xml-rpc: missing return value");
+        delete [] memxml;
     }
     
     delete [] memxml;
@@ -293,9 +298,9 @@ Variant Client::call(string plugin,string method,vector<Variant> params)
     return call(plugin,method,params,this->credential);
 }
 
-Variant Client::call(string plugin,string method,vector<Variant> params, auth::Credential credential)
+Variant Client::call(string name,string method,vector<Variant> params, auth::Credential credential)
 {
-    Variant ret;
+    Variant response;
     
     //Build N4D header
     vector<Variant> full_params;
@@ -314,15 +319,43 @@ Variant Client::call(string plugin,string method,vector<Variant> params, auth::C
         break;
     }
     
-    full_params.push_back(plugin);
+    // push plugin name
+    full_params.push_back(name);
     
+    // push method params
     for (Variant& param : params) {
         full_params.push_back(param);
     }
     
-    ret=rpc_call(method,full_params);
+    response=rpc_call(method,full_params);
     
-    return ret;
+    if (validate_response(response)) {
+        
+        int status = response["status"].get_int32();
+        
+        switch (status) {
+            case ErrorCode::UnknownClass:
+                throw exception::UnknownClass(name);
+            break;
+            
+            case ErrorCode::UnknownMethod:
+                throw exception::UnknownMethod(name,method);
+            break;
+            
+            case ErrorCode::UserNotAllowed:
+                throw exception::UserNotAllowed(credential.user,name,method);
+            break;
+            //TODO
+            default:
+                throw exception::UnknownCode(name,method,status);
+        }
+        
+        return response["return"];
+    }
+    else {
+        throw exception::InvalidServerResponse(address);
+    }
+    
 }
 
 Client::~Client()
@@ -347,12 +380,12 @@ void Client::post(stringstream& in,stringstream& out)
     CURLcode res;
     
     if (!curl_instance.ready) {
-        throw exception::CurlError("curl_global_init",0);
+        throw exception::ServerError(0,"curl_global_init");
     }
     
     curl = curl_easy_init();
     if(!curl) {
-        throw exception::CurlError("curl_easy_init",0);
+        throw exception::ServerError(0,"curl_easy_init");
     }
     
     curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
@@ -372,7 +405,7 @@ void Client::post(stringstream& in,stringstream& out)
     
     if (res!=0) {
         curl_easy_cleanup(curl);
-        throw exception::CurlError("curl_easy_perform",res);
+        throw exception::ServerError(res,"curl_easy_perform");
     }
     
     curl_easy_cleanup(curl);
@@ -468,6 +501,26 @@ void Client::create_request(string method,vector<Variant> params,stringstream& o
     out<<"</methodCall>";
 }
 
+bool Client::validate_response(variant::Variant response)
+{
+    Variant v = response/"msg"/variant::Type::String;
+    if (v.none()) {
+        return false;
+    }
+    
+    v = response/"status"/variant::Type::Int32;
+    if (v.none()) {
+        return false;
+    }
+    
+    v = response/"return";
+    if (v.none()) {
+        return false;
+    }
+    
+    return true;
+}
+
 bool Client::validate_user(string name,string password)
 {
     vector<Variant> params ;
@@ -481,7 +534,7 @@ bool Client::validate_user(string name,string password)
         return value[0].get_boolean();
     }
     catch (std::exception& ex) {
-        throw exception::BadN4DResponse();
+        throw exception::ServerError(0,"ToDO");
     }
     
     return false;
@@ -505,7 +558,7 @@ vector<string> Client::get_groups(string name,string password)
         }
     }
     catch (std::exception& ex) {
-        throw exception::BadN4DResponse();
+        throw exception::ServerError(0,"ToDo");
     }
     
     return groups;
@@ -528,7 +581,7 @@ map<string,vector<string> > Client::get_methods()
         }
     }
     catch (std::exception& ex) {
-        throw exception::BadN4DResponse();
+        throw exception::ServerError(0,"ToDo");
     }
     
     return plugins;
