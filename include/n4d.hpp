@@ -176,9 +176,15 @@ namespace edupals
                 
                 std::string msg;
                 
-                CallFailed(std::string& name,std::string& method,int code)
+                std::string message;
+                int code;
+                
+                CallFailed(std::string& name,std::string& method,int code,std::string message)
                 {
-                    msg=name+"::"+method+"() returned error code "+ std::to_string(code);
+                    this->code=code;
+                    this->message=message;
+                    
+                    msg=name+"::"+method+"() returned error code :"+ std::to_string(code);
                 }
                 
                 const char* what() const throw()

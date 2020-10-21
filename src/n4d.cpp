@@ -359,7 +359,9 @@ Variant Client::call(string name,string method,vector<Variant> params, auth::Cre
             break;
             
             case ErrorCode::CallFailed:
-                throw exception::CallFailed(name,method,-1);
+                throw exception::CallFailed(name,method,
+                                            response["error_code"].get_int32(),
+                                            response["msg"].get_string());
             break;
             
             case ErrorCode::CallSuccessful:
@@ -530,6 +532,15 @@ bool Client::validate_response(variant::Variant response)
     v = response/"status"/variant::Type::Int32;
     if (v.none()) {
         return false;
+    }
+    
+    int status = v.get_int32();
+    
+    if(status==ErrorCode::CallFailed) {
+        v = response/"error_code"/variant::Type::Int32;
+        if (v.none()) {
+            return false;
+        }
     }
     
     v = response/"return";
