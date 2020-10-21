@@ -345,12 +345,31 @@ Variant Client::call(string name,string method,vector<Variant> params, auth::Cre
             case ErrorCode::UserNotAllowed:
                 throw exception::UserNotAllowed(credential.user,name,method);
             break;
-            //TODO
+            
+            case ErrorCode::AuthenticationFailed:
+                throw exception::AuthenticationFailed(credential.user);
+            break;
+            
+            case ErrorCode::InvalidResponse:
+                throw exception::InvalidMethodResponse(name,method);
+            break;
+            
+            case ErrorCode::InvalidArguments:
+                throw exception::InvalidArguments(name,method);
+            break;
+            
+            case ErrorCode::CallFailed:
+                throw exception::CallFailed(name,method,-1);
+            break;
+            
+            case ErrorCode::CallSuccessful:
+                return response["return"];
+            break;
+            
             default:
                 throw exception::UnknownCode(name,method,status);
         }
         
-        return response["return"];
     }
     else {
         throw exception::InvalidServerResponse(address);
