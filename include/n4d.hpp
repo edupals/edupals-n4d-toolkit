@@ -240,7 +240,8 @@ namespace edupals
                 None,
                 Anonymous,
                 Password,
-                Key
+                Key,
+                MasterKey
             };
             
             class Key
@@ -305,6 +306,15 @@ namespace edupals
                     this->key=key;
                 }
                 
+                /*!
+                 * Master key constructor
+                 */
+                Credential(Key key)
+                {
+                    this->type=Type::MasterKey;
+                    this->key=key;
+                }
+                
             };
         }
         
@@ -332,7 +342,7 @@ namespace edupals
                                 std::vector<variant::Variant> params,
                                 std::stringstream& out);
             
-            bool validate_response(variant::Variant response);
+            bool validate_format(variant::Variant response);
             
             public:
             
@@ -389,6 +399,10 @@ namespace edupals
              * \returns a map of string->vector of strings
             */
             std::map<std::string,std::vector<std::string> > get_methods();
+            
+            void create_ticket(std::string user);
+            
+            void get_ticket(std::string name, std::string password);
             
             /*!
                 Checks whenever the server is running at specified address and port

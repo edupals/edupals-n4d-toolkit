@@ -329,7 +329,7 @@ Variant Client::call(string name,string method,vector<Variant> params, auth::Cre
     
     response=rpc_call(method,full_params);
     
-    if (validate_response(response)) {
+    if (validate_format(response)) {
         
         int status = response["status"].get_int32();
         
@@ -522,7 +522,7 @@ void Client::create_request(string method,vector<Variant> params,stringstream& o
     out<<"</methodCall>";
 }
 
-bool Client::validate_response(variant::Variant response)
+bool Client::validate_format(variant::Variant response)
 {
     Variant v = response/"msg"/variant::Type::String;
     if (v.none()) {
