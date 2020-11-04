@@ -400,9 +400,17 @@ namespace edupals
             */
             std::map<std::string,std::vector<std::string> > get_methods();
             
-            void create_ticket(std::string user);
+            void create_ticket();
             
-            void get_ticket(std::string name, std::string password);
+            void get_ticket();
+            
+            variant::Variant get_variable(std::string name);
+            
+            void set_variable(std::string name,variant::Variant value,variant::Variant extra_info);
+            
+            void delete_variable(std::string name);
+            
+            std::vector<variant::Variant> get_variables(bool full_Info=false);
             
             /*!
                 Checks whenever the server is running at specified address and port

@@ -317,6 +317,10 @@ Variant Client::call(string name,string method,vector<Variant> params, auth::Cre
         case auth::Type::Key:
             full_params.push_back({credential.user, credential.key.value});
         break;
+        
+        case auth::Type::MasterKey:
+            full_params.push_back(credential.key.value);
+        break;
     }
     
     // push plugin name
@@ -615,6 +619,39 @@ map<string,vector<string> > Client::get_methods()
     }
     
     return plugins;
+}
+
+void Client::create_ticket()
+{
+    auth::Type type = credential.type;
+    
+    if (type==auth::Type::Password or type==auth::Type::Key) {
+        Variant value = rpc_call("create_ticket",{credential.user});
+    }
+    else {
+    
+    }
+}
+
+void Client::get_ticket()
+{
+}
+
+Variant Client::get_variable(string name)
+{
+    
+}
+
+void Client::set_variable(string name,Variant value,Variant extra_info)
+{
+}
+
+void Client::delete_variable(string name)
+{
+}
+
+vector<Variant> Client::get_variables(bool full_info)
+{
 }
 
 bool Client::running()
