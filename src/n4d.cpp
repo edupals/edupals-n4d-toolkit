@@ -295,11 +295,6 @@ Variant Client::call(string plugin,string method)
 
 Variant Client::call(string plugin,string method,vector<Variant> params)
 {
-    return call(plugin,method,params,this->credential);
-}
-
-Variant Client::call(string name,string method,vector<Variant> params, auth::Credential credential)
-{
     Variant response;
     
     //Build N4D header
@@ -333,54 +328,13 @@ Variant Client::call(string name,string method,vector<Variant> params, auth::Cre
     
     response=rpc_call(method,full_params);
     
-    if (validate_format(response)) {
-        
-        int status = response["status"].get_int32();
-        
-        switch (status) {
-            case ErrorCode::UnknownClass:
-                throw exception::UnknownClass(name);
-            break;
-            
-            case ErrorCode::UnknownMethod:
-                throw exception::UnknownMethod(name,method);
-            break;
-            
-            case ErrorCode::UserNotAllowed:
-                throw exception::UserNotAllowed(credential.user,name,method);
-            break;
-            
-            case ErrorCode::AuthenticationFailed:
-                throw exception::AuthenticationFailed(credential.user);
-            break;
-            
-            case ErrorCode::InvalidResponse:
-                throw exception::InvalidMethodResponse(name,method);
-            break;
-            
-            case ErrorCode::InvalidArguments:
-                throw exception::InvalidArguments(name,method);
-            break;
-            
-            case ErrorCode::CallFailed:
-                throw exception::CallFailed(name,method,
-                                            response["error_code"].get_int32(),
-                                            response["msg"].get_string());
-            break;
-            
-            case ErrorCode::CallSuccessful:
-                return response["return"];
-            break;
-            
-            default:
-                throw exception::UnknownCode(name,method,status);
-        }
-        
-    }
-    else {
-        throw exception::InvalidServerResponse(address);
-    }
-    
+    return validate(response,name,method);
+}
+
+[[deprecated("credential argument will be ignored!")]]
+Variant Client::call(string name,string method,vector<Variant> params, auth::Credential credential)
+{
+    return call(name,method,params);
 }
 
 Client::~Client()
@@ -555,6 +509,57 @@ bool Client::validate_format(variant::Variant response)
     return true;
 }
 
+Variant Client::validate(variant::Variant response,string name,string method)
+{
+    if (validate_format(response)) {
+        
+        int status = response["status"].get_int32();
+        
+        switch (status) {
+            case ErrorCode::UnknownClass:
+                throw exception::UnknownClass(name);
+            break;
+            
+            case ErrorCode::UnknownMethod:
+                throw exception::UnknownMethod(name,method);
+            break;
+            
+            case ErrorCode::UserNotAllowed:
+                throw exception::UserNotAllowed(credential.user,name,method);
+            break;
+            
+            case ErrorCode::AuthenticationFailed:
+                throw exception::AuthenticationFailed(credential.user);
+            break;
+            
+            case ErrorCode::InvalidResponse:
+                throw exception::InvalidMethodResponse(name,method);
+            break;
+            
+            case ErrorCode::InvalidArguments:
+                throw exception::InvalidArguments(name,method);
+            break;
+            
+            case ErrorCode::CallFailed:
+                throw exception::CallFailed(name,method,
+                                            response["error_code"].get_int32(),
+                                            response["msg"].get_string());
+            break;
+            
+            case ErrorCode::CallSuccessful:
+                return response["return"];
+            break;
+            
+            default:
+                throw exception::UnknownCode(name,method,status);
+        }
+        
+    }
+    else {
+        throw exception::InvalidServerResponse(address);
+    }
+}
+
 bool Client::validate_user(string name,string password)
 {
     vector<Variant> params ;
@@ -627,31 +632,56 @@ void Client::create_ticket()
     
     if (type==auth::Type::Password or type==auth::Type::Key) {
         Variant value = rpc_call("create_ticket",{credential.user});
+        value = validate(value,"N4D","create_ticket");
+        
+        //TODO
     }
     else {
-    
+        //TODO: throw exception
     }
 }
 
 void Client::get_ticket()
 {
+    auth::Type type = credential.type;
+    
+    if (type==auth::Type::Password) {
+        Variant value = rpc_call("get_ticket",{credential.user,credential.password});
+        value = validate(value,"N4D","get_ticket");
+        
+        //TODO
+    }
+    else {
+        //TODO
+    }
 }
 
 Variant Client::get_variable(string name)
 {
+    Variant value = rpc_call("get_variable",{name});
+    value = validate(value,"N4D","get_variable");
     
+    return value;
 }
 
 void Client::set_variable(string name,Variant value,Variant extra_info)
 {
+    Variant value = rpc_call("set_variable",{{},name,value,extra_info});
+    value = validate(value,"N4D","set_variable");
 }
 
 void Client::delete_variable(string name)
 {
+    Variant value = rpc_call("delete_variable",{{},name});
+    value = validate(value,"N4D","delete_variable");
 }
 
-vector<Variant> Client::get_variables(bool full_info)
+Variant Client::get_variables(bool full_info)
 {
+    Variant value = rpc_call("get_variables",{full_info});
+    value = validate(value,"N4D","get_variables");
+    
+    return value;
 }
 
 bool Client::running()

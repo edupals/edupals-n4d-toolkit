@@ -344,6 +344,8 @@ namespace edupals
             
             bool validate_format(variant::Variant response);
             
+            variant::Variant validate(variant::Variant response,std::string name,std::string method);
+            
             public:
             
             /*!
@@ -410,7 +412,7 @@ namespace edupals
             
             void delete_variable(std::string name);
             
-            std::vector<variant::Variant> get_variables(bool full_Info=false);
+            variant::Variant get_variables(bool full_Info=false);
             
             /*!
                 Checks whenever the server is running at specified address and port
