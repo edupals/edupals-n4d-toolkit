@@ -576,17 +576,17 @@ bool Client::validate_user(string name,string password)
     auth::Type type = credential.type;
     vector<Variant> args;
     
-    if (type==auth::Type::Password {
+    if (type==auth::Type::Password) {
         args.push_back(credential.user);
         args.push_back(credential.password);
     }
     else {
-        if (type==type==auth::Type::Key) {
+        if (type==auth::Type::Key) {
             args.push_back(credential.user);
             args.push_back(credential.key.value);
         }
         else {
-            throw InvalidCredential();
+            throw exception::InvalidCredential();
         }
     }
     
@@ -630,17 +630,17 @@ vector<string> Client::get_groups()
     auth::Type type = credential.type;
     vector<Variant> args;
     
-    if (type==auth::Type::Password {
+    if (type==auth::Type::Password) {
         args.push_back(credential.user);
         args.push_back(credential.password);
     }
     else {
-        if (type==type==auth::Type::Key) {
+        if (type==auth::Type::Key) {
             args.push_back(credential.user);
             args.push_back(credential.key.value);
         }
         else {
-            throw InvalidCredential();
+            throw exception::InvalidCredential();
         }
     }
     
@@ -701,7 +701,7 @@ void Client::create_ticket()
         //TODO
     }
     else {
-        throw InvalidCredential();
+        throw exception::InvalidCredential();
     }
 }
 
@@ -716,7 +716,7 @@ void Client::get_ticket()
         //TODO
     }
     else {
-        throw InvalidCredential();
+        throw exception::InvalidCredential();
     }
 }
 
@@ -765,7 +765,8 @@ bool Client::running()
 string Client::version()
 {
     //TODO
-    Variant response = rpc_call("version",{name});
+    vector<Variant> args;
+    Variant response = rpc_call("version",args);
     response = validate(response,"N4D","version");
     
     return "";
