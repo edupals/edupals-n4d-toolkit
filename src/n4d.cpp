@@ -58,6 +58,7 @@ class CurlFactory
     }
 };
 
+//TODO: better thread safety (better than nothing, I mean)
 static CurlFactory curl_instance;
 
 bool auth::Key::valid()
@@ -77,6 +78,30 @@ bool auth::Key::valid()
     }
     
     return false;
+}
+
+Variant auth::Credential::get()
+{
+    switch (type) {
+        case auth::Type::Anonymous:
+            return "";
+        break;
+        
+        case auth::Type::Password:
+            return {user, password};
+        break;
+        
+        case auth::Type::Key:
+            return {user, key.value};
+        break;
+        
+        case auth::Type::MasterKey:
+            return key.value;
+        break;
+    }
+    
+    // default to anonymous
+    return "";
 }
 
 Client::Client(string address,int port)
@@ -287,36 +312,21 @@ Variant Client::rpc_call(string method,vector<Variant> params)
     return ret;
 }
 
-Variant Client::call(string plugin,string method)
+Variant Client::call(string name,string method)
 {
     vector<Variant> params;
-    return call(plugin,method,params,this->credential);
+    return call(name,method,params,this->credential);
 }
 
-Variant Client::call(string plugin,string method,vector<Variant> params)
+Variant Client::call(string name,string method,vector<Variant> params)
 {
     Variant response;
     
-    //Build N4D header
+    // Build N4D header
     vector<Variant> full_params;
     
-    switch (credential.type) {
-        case auth::Type::Anonymous:
-            full_params.push_back("");
-        break;
-        
-        case auth::Type::Password:
-            full_params.push_back({credential.user, credential.password});
-        break;
-        
-        case auth::Type::Key:
-            full_params.push_back({credential.user, credential.key.value});
-        break;
-        
-        case auth::Type::MasterKey:
-            full_params.push_back(credential.key.value);
-        break;
-    }
+    // push credentials
+    full_params.push_back(credential.get());
     
     // push plugin name
     full_params.push_back(name);
@@ -560,47 +570,101 @@ Variant Client::validate(variant::Variant response,string name,string method)
     }
 }
 
+[[deprecated("Use validate_auth instead. Name and password will be ignored!")]]
 bool Client::validate_user(string name,string password)
 {
-    vector<Variant> params ;
+    auth::Type type = credential.type;
+    vector<Variant> args;
     
-    params.push_back(name);
-    params.push_back(password);
-    
-    Variant value = rpc_call("validate_user",params);
-    
-    try {
-        return value[0].get_boolean();
+    if (type==auth::Type::Password {
+        args.push_back(credential.user);
+        args.push_back(credential.password);
     }
-    catch (std::exception& ex) {
-        throw exception::ServerError(0,"ToDO");
-    }
-    
-    return false;
-}
-
-vector<string> Client::get_groups(string name,string password)
-{
-    vector<string> groups;
-    vector<Variant> params;
-    
-    params.push_back(name);
-    params.push_back(password);
-    
-    Variant value = rpc_call("validate_user",params);
-    
-    try {
-        int num=value[1].count();
-        
-        for (int n=0;n<num;n++) {
-            groups.push_back(value[1][n].get_string());
+    else {
+        if (type==type==auth::Type::Key) {
+            args.push_back(credential.user);
+            args.push_back(credential.key.value);
+        }
+        else {
+            throw InvalidCredential();
         }
     }
-    catch (std::exception& ex) {
-        throw exception::ServerError(0,"ToDo");
+    
+    Variant value = rpc_call("validate_user",args);
+    value = validate(value,"N4D","validate_user");
+    
+    Variant response = value / 0 / variant::Type::Boolean;
+    
+    if (!response.none()) {
+        return response.get_boolean();
+    }
+    else {
+        //TODO: bad format?
+        return false;
     }
     
-    return groups;
+}
+
+bool Client::validate_auth()
+{
+    Variant value = rpc_call("validate_auth",{credential.get()});
+    value = validate(value,"N4D","validate_auth");
+    
+    if (value.type()==variant::Type::Boolean) {
+        return value.get_boolean();
+    }
+    else {
+        //TODO: throw exception?
+        return false;
+    }
+}
+
+[[deprecated("Name and password will be ignored!")]]
+vector<string> Client::get_groups(string name,string password)
+{
+    return get_groups();
+}
+
+vector<string> Client::get_groups()
+{
+    auth::Type type = credential.type;
+    vector<Variant> args;
+    
+    if (type==auth::Type::Password {
+        args.push_back(credential.user);
+        args.push_back(credential.password);
+    }
+    else {
+        if (type==type==auth::Type::Key) {
+            args.push_back(credential.user);
+            args.push_back(credential.key.value);
+        }
+        else {
+            throw InvalidCredential();
+        }
+    }
+    
+    Variant value = rpc_call("validate_user",args);
+    value = validate(value,"N4D","validate_user");
+    
+    Variant list = value / 1 / variant::Type::Array;
+    
+    if (!list.none()) {
+        vector<string> groups;
+        
+        for (int n=0;n<list.count();n++) {
+            Variant v = list[n];
+            
+            if (v.type()==variant::Type::String) {
+                groups.push_back(v.get_string());
+            }
+        }
+        
+        return groups;
+    }
+    else {
+        //TODO: throw bad format?
+    }
 }
 
 map<string,vector<string> > Client::get_methods()
@@ -637,7 +701,7 @@ void Client::create_ticket()
         //TODO
     }
     else {
-        //TODO: throw exception
+        throw InvalidCredential();
     }
 }
 
@@ -652,36 +716,36 @@ void Client::get_ticket()
         //TODO
     }
     else {
-        //TODO
+        throw InvalidCredential();
     }
 }
 
 Variant Client::get_variable(string name)
 {
-    Variant value = rpc_call("get_variable",{name});
-    value = validate(value,"N4D","get_variable");
+    Variant response = rpc_call("get_variable",{name});
+    response = validate(response,"N4D","get_variable");
     
-    return value;
+    return response;
 }
 
 void Client::set_variable(string name,Variant value,Variant extra_info)
 {
-    Variant value = rpc_call("set_variable",{{},name,value,extra_info});
-    value = validate(value,"N4D","set_variable");
+    Variant response = rpc_call("set_variable",{credential.get(),name,value,extra_info});
+    response = validate(response,"N4D","set_variable");
 }
 
 void Client::delete_variable(string name)
 {
-    Variant value = rpc_call("delete_variable",{{},name});
-    value = validate(value,"N4D","delete_variable");
+    Variant response = rpc_call("delete_variable",{credential.get(),name});
+    response = validate(response,"N4D","delete_variable");
 }
 
 Variant Client::get_variables(bool full_info)
 {
-    Variant value = rpc_call("get_variables",{full_info});
-    value = validate(value,"N4D","get_variables");
+    Variant response = rpc_call("get_variables",{full_info});
+    response = validate(response,"N4D","get_variables");
     
-    return value;
+    return response;
 }
 
 bool Client::running()
@@ -689,13 +753,22 @@ bool Client::running()
     bool status=true;
     
     try {
-        auto none=get_methods();
+        version();
     }
     catch (std::exception& ex) {
         status=false;
     }
     
     return status;
+}
+
+string Client::version()
+{
+    //TODO
+    Variant response = rpc_call("version",{name});
+    response = validate(response,"N4D","version");
+    
+    return "";
 }
 
 void Client::set_flags(int flags)

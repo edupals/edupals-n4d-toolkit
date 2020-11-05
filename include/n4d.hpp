@@ -231,6 +231,33 @@ namespace edupals
                 }
                 
             };
+            
+            class InvalidCredential : public std::exception
+            {
+                public:
+                
+                const char* what() const throw()
+                {
+                    return "Invalid credential type";
+                }
+            };
+            
+            class UnknwonMethodResponse: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UnknwonMethodResponse(std::string name,std::string method, std::string info)
+                {
+                    msg="Unknwon response from "+name+"::"+method+"(): "+info;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
         }
         
         namespace auth
@@ -315,6 +342,7 @@ namespace edupals
                     this->key=key;
                 }
                 
+                variant::Variant get();
             };
         }
         
@@ -371,18 +399,18 @@ namespace edupals
             /*!
              * Perform a sync n4d call to Plugin.method
             */
-            variant::Variant call(std::string plugin,std::string method);
+            variant::Variant call(std::string name,std::string method);
             
             /*!
              * Perform a sync n4d call to Plugin.method with given params
             */
-            variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> params);
+            variant::Variant call(std::string name,std::string method,std::vector<variant::Variant> params);
             
             /*!
              * Perform a sync n4d call to Plugin.method with given params and
              * custom credentials
             */
-            variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
+            variant::Variant call(std::string name,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
             
             virtual ~Client();
             
@@ -391,10 +419,15 @@ namespace edupals
             */
             bool validate_user(std::string name,std::string password);
             
+            
+            bool validate_auth();
+            
             /*!
                 Get the list of groups an user belongs to
             */
             std::vector<std::string> get_groups(std::string name,std::string password);
+            
+            std::vector<std::string> get_groups();
             
             /*!
              * Gets a list of available methods on server
@@ -419,6 +452,8 @@ namespace edupals
                 Internally it calls a get_methods but no exception is thrown
             */
             bool running();
+            
+            std::string version();
             
             /*!
                 Set flags
