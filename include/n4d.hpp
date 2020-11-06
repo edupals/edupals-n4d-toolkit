@@ -419,14 +419,20 @@ namespace edupals
             */
             bool validate_user(std::string name,std::string password);
             
-            
+            /*!
+                Check if current credentials are valid
+            */
             bool validate_auth();
             
             /*!
                 Get the list of groups an user belongs to
             */
+            [[deprecated("Name and password will be ignored!")]]
             std::vector<std::string> get_groups(std::string name,std::string password);
             
+            /*!
+                Get the list of groups an user belongs to
+            */
             std::vector<std::string> get_groups();
             
             /*!
@@ -435,10 +441,19 @@ namespace edupals
             */
             std::map<std::string,std::vector<std::string> > get_methods();
             
+            /*!
+                Creates a local n4d ticket
+            */
             void create_ticket();
             
+            /*!
+                Obtains a n4d ticket from a remote server. Needs a Password credential
+            */
             void get_ticket();
             
+            /*!
+                Get a variable
+            */
             variant::Variant get_variable(std::string name);
             
             void set_variable(std::string name,variant::Variant value,variant::Variant extra_info);
@@ -453,6 +468,9 @@ namespace edupals
             */
             bool running();
             
+            /*!
+                Gets server version
+            */
             std::string version();
             
             /*!

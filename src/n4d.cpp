@@ -619,7 +619,7 @@ bool Client::validate_auth()
     }
 }
 
-[[deprecated("Name and password will be ignored!")]]
+
 vector<string> Client::get_groups(string name,string password)
 {
     return get_groups();

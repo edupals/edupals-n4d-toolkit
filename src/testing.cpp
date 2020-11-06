@@ -37,7 +37,7 @@ int main(int argc,char* argv[])
     variant::Variant value = client.get_variable("patata");
     
     clog<<"patata:"<<value<<endl;
-    
+    client.version();
     client.get_methods();
     
     /*
