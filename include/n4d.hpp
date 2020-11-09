@@ -242,20 +242,30 @@ namespace edupals
                 }
             };
             
-            class UnknwonMethodResponse: public std::exception
+            class InvalidBuiltInResponse: public std::exception
             {
                 public:
                 
                 std::string msg;
                 
-                UnknwonMethodResponse(std::string name,std::string method, std::string info)
+                InvalidBuiltInResponse(std::string method, std::string info)
                 {
-                    msg="Unknwon response from "+name+"::"+method+"(): "+info;
+                    msg="Invalid response from "+method+"(): "+info;
                 }
                 
                 const char* what() const throw()
                 {
                     return msg.c_str();
+                }
+            };
+            
+            class TicketFailed : public std::exception
+            {
+                public:
+                
+                const char* what() const throw()
+                {
+                    return "Can not read ticket";
                 }
             };
         }
@@ -410,6 +420,7 @@ namespace edupals
              * Perform a sync n4d call to Plugin.method with given params and
              * custom credentials
             */
+            [[deprecated("credential argument will be ignored!")]]
             variant::Variant call(std::string name,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
             
             virtual ~Client();
@@ -417,6 +428,7 @@ namespace edupals
             /*!
              * Checks whenever a user/password is valid in that server
             */
+            [[deprecated("Use validate_auth instead. Name and password will be ignored!")]]
             bool validate_user(std::string name,std::string password);
             
             /*!
@@ -444,23 +456,32 @@ namespace edupals
             /*!
                 Creates a local n4d ticket
             */
-            void create_ticket();
+            Credential create_ticket();
             
             /*!
                 Obtains a n4d ticket from a remote server. Needs a Password credential
             */
-            void get_ticket();
+            Credential get_ticket();
             
             /*!
                 Get a variable
             */
-            variant::Variant get_variable(std::string name);
+            variant::Variant get_variable(std::string name,bool attribs = false);
             
-            void set_variable(std::string name,variant::Variant value,variant::Variant extra_info);
+            /*!
+                Set a variable
+            */
+            void set_variable(std::string name,variant::Variant value,variant::Variant attribs);
             
+            /*!
+                Delete a variable
+            */
             void delete_variable(std::string name);
             
-            variant::Variant get_variables(bool full_Info=false);
+            /*!
+                Get a variable
+            */
+            variant::Variant get_variables(bool attribs=false);
             
             /*!
                 Checks whenever the server is running at specified address and port
@@ -482,6 +503,12 @@ namespace edupals
                 Get current flags
             */
             int get_flags();
+            
+            /*!
+                Sets a new n4d credential
+            */
+            void set_credential(Credential credential);
+            
         };
     }
 }
