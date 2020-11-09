@@ -30,6 +30,7 @@
 #include <iomanip>
 #include <cstring>
 #include <sstream>
+#include <fstream>
 
 using namespace edupals;
 using namespace edupals::variant;
@@ -315,7 +316,7 @@ Variant Client::rpc_call(string method,vector<Variant> params)
 Variant Client::call(string name,string method)
 {
     vector<Variant> params;
-    return call(name,method,params,this->credential);
+    return call(name,method,params);
 }
 
 Variant Client::call(string name,string method,vector<Variant> params)
@@ -598,7 +599,7 @@ bool Client::validate_user(string name,string password)
         return response.get_boolean();
     }
     else {
-        throw InvalidBuiltInResponse("validate_user","Exepcted boolean response");
+        throw exception::InvalidBuiltInResponse("validate_user","Exepcted boolean response");
     }
     
 }
@@ -612,7 +613,7 @@ bool Client::validate_auth()
         return value.get_boolean();
     }
     else {
-        throw InvalidBuiltInResponse("validate_auth","Exepcted boolean response");
+        throw exception::InvalidBuiltInResponse("validate_auth","Exepcted boolean response");
     }
 }
 
@@ -659,7 +660,7 @@ vector<string> Client::get_groups()
         return groups;
     }
     else {
-        throw InvalidBuiltInResponse("get_groups","Exepcted array response");
+        throw exception::InvalidBuiltInResponse("get_groups","Exepcted array response");
     }
 }
 
@@ -686,7 +687,7 @@ map<string,vector<string> > Client::get_methods()
     return plugins;
 }
 
-Credential Client::create_ticket()
+auth::Credential Client::create_ticket()
 {
     auth::Type type = credential.type;
     
@@ -695,7 +696,7 @@ Credential Client::create_ticket()
         value = validate(value,"N4D","create_ticket");
         
         string credential_path="/run/n4d/tickets/"+credential.user;
-        fstream file(credential_path);
+        ifstream file(credential_path);
         
         if(!file) {
             throw exception::TicketFailed();
@@ -706,7 +707,7 @@ Credential Client::create_ticket()
         
         file.close();
         
-        return Credential(crendential.user,Key(data));
+        return auth::Credential(credential.user,auth::Key(data));
     }
     else {
         throw exception::InvalidCredential();
@@ -714,7 +715,7 @@ Credential Client::create_ticket()
     
 }
 
-Credential Client::get_ticket()
+auth::Credential Client::get_ticket()
 {
     auth::Type type = credential.type;
     
@@ -722,7 +723,7 @@ Credential Client::get_ticket()
         Variant value = rpc_call("get_ticket",{credential.user,credential.password});
         value = validate(value,"N4D","get_ticket");
         //TODO: check format
-        return Credential(value.get_string());
+        return auth::Credential(value.get_string());
     }
     else {
         throw exception::InvalidCredential();
@@ -740,7 +741,7 @@ Variant Client::get_variable(string name, bool attribs)
 
 void Client::set_variable(string name,Variant value,Variant attribs)
 {
-    Variant response = rpc_call("set_variable",{credential.get(),name,value,extra_info});
+    Variant response = rpc_call("set_variable",{credential.get(),name,value,attribs});
     response = validate(response,"N4D","set_variable");
 }
 
@@ -752,7 +753,7 @@ void Client::delete_variable(string name)
 
 Variant Client::get_variables(bool attribs)
 {
-    Variant response = rpc_call("get_variables",{full_info});
+    Variant response = rpc_call("get_variables",{attribs});
     response = validate(response,"N4D","get_variables");
     
     return response;
@@ -789,4 +790,9 @@ void Client::set_flags(int flags)
 int Client::get_flags()
 {
     return flags;
+}
+
+void Client::set_credential(auth::Credential credential)
+{
+    this->credential=credential;
 }

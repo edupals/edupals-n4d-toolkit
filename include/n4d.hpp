@@ -456,12 +456,12 @@ namespace edupals
             /*!
                 Creates a local n4d ticket
             */
-            Credential create_ticket();
+            auth::Credential create_ticket();
             
             /*!
                 Obtains a n4d ticket from a remote server. Needs a Password credential
             */
-            Credential get_ticket();
+            auth::Credential get_ticket();
             
             /*!
                 Get a variable
@@ -507,7 +507,7 @@ namespace edupals
             /*!
                 Sets a new n4d credential
             */
-            void set_credential(Credential credential);
+            void set_credential(auth::Credential credential);
             
         };
     }
