@@ -34,9 +34,16 @@ int main(int argc,char* argv[])
     n4d::Client client("https://localhost",9800);
     //client.set_flags(n4d::Option::Verbose);
     
-    variant::Variant value = client.get_variable("patata");
+    variant::Variant value = client.get_variable("patata",true);
     
-    clog<<"patata:"<<value<<endl;
+    clog<<"patata:"<<value["value"]<<endl;
+    clog<<"attribs:"<<endl;
+    for (string k:value.keys()) {
+        if (k!="value") {
+            clog<<"    "<<k<<":"<<value[k]<<endl;
+        }
+    }
+    
     client.version();
     client.get_methods();
     

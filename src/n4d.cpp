@@ -22,6 +22,7 @@
  */
 
 #include <n4d.hpp>
+#include <token.hpp>
 
 #include <curl/curl.h>
 #include <rapidxml/rapidxml.hpp>
@@ -34,6 +35,7 @@
 
 using namespace edupals;
 using namespace edupals::variant;
+using namespace edupals::parser;
 using namespace edupals::n4d;
 
 using namespace rapidxml;
@@ -59,17 +61,17 @@ class CurlFactory
     }
 };
 
-//TODO: better thread safety (better than nothing, I mean)
-static CurlFactory curl_instance;
+//TODO: check about thread safety
+CurlFactory curl_instance;
 
 bool auth::Key::valid()
 {
     // based on current N4D ticket generation method
     if (value.size()==50) {
         for (char c:value) {
-            if ( (c>='0' and c<='9') or
-                (c>='a' and c<='z') or
-                (c>='A' and c<='Z')) {
+            if (token::is_num(c) or
+                token::is_alpha_lower(c) or
+                token::is_alpha_upper(c)) {
                 continue;
             }
             
@@ -652,7 +654,7 @@ vector<string> Client::get_groups()
         for (int n=0;n<list.count();n++) {
             Variant v = list[n];
             
-            if (v.type()==variant::Type::String) {
+            if (v.is_string()) {
                 groups.push_back(v.get_string());
             }
         }

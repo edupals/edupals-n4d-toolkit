@@ -387,9 +387,9 @@ namespace edupals
             public:
             
             /*!
-             * Default client to https://localhost 9779 and anonymous credential
+             * Default client to https://localhost 9800 and anonymous credential
             */
-            Client(std::string address="https://localhost",int port=9779);
+            Client(std::string address="https://localhost",int port=9800);
             
             /*!
              * Client using a user/password as default credential
