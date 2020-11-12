@@ -423,6 +423,11 @@ namespace edupals
             [[deprecated("credential argument will be ignored!")]]
             variant::Variant call(std::string name,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
             
+            /*!
+                Performs a N4D built in call: with no plugin name and no credential
+            */
+            variant::Variant builtin_call(std::string method,std::vector<variant::Variant> params);
+            
             virtual ~Client();
             
             /*!

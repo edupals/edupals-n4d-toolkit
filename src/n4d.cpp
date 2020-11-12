@@ -349,6 +349,12 @@ Variant Client::call(string name,string method,vector<Variant> params, auth::Cre
     return call(name,method,params);
 }
 
+Variant Client::builtin_call(string method,vector<Variant> params)
+{
+    Variant value = rpc_call(method,params);
+    return validate(value,"N4D",method);
+}
+
 Client::~Client()
 {
 
@@ -592,8 +598,7 @@ bool Client::validate_user(string name,string password)
         }
     }
     
-    Variant value = rpc_call("validate_user",args);
-    value = validate(value,"N4D","validate_user");
+    Variant value = builtin_call("validate_user",args);
     
     Variant response = value / 0 / variant::Type::Boolean;
     
@@ -608,10 +613,9 @@ bool Client::validate_user(string name,string password)
 
 bool Client::validate_auth()
 {
-    Variant value = rpc_call("validate_auth",{credential.get()});
-    value = validate(value,"N4D","validate_auth");
+    Variant value = builtin_call("validate_auth",{credential.get()});
     
-    if (value.type()==variant::Type::Boolean) {
+    if (value.is_boolean()) {
         return value.get_boolean();
     }
     else {
@@ -643,8 +647,7 @@ vector<string> Client::get_groups()
         }
     }
     
-    Variant value = rpc_call("validate_user",args);
-    value = validate(value,"N4D","validate_user");
+    Variant value = builtin_call("validate_user",args);
     
     Variant list = value / 1 / variant::Type::Array;
     
@@ -671,7 +674,7 @@ map<string,vector<string> > Client::get_methods()
     map<string, vector<string> > plugins;
     vector<Variant> params;
     
-    Variant value = rpc_call("get_sorted_methods",params);
+    Variant value = builtin_call("get_sorted_methods",params);
     
     try {
         for (string& key : value.keys()) {
@@ -722,8 +725,7 @@ auth::Credential Client::get_ticket()
     auth::Type type = credential.type;
     
     if (type==auth::Type::Password) {
-        Variant value = rpc_call("get_ticket",{credential.user,credential.password});
-        value = validate(value,"N4D","get_ticket");
+        Variant value = builtin_call("get_ticket",{credential.user,credential.password});
         //TODO: check format
         return auth::Credential(value.get_string());
     }
@@ -735,28 +737,26 @@ auth::Credential Client::get_ticket()
 
 Variant Client::get_variable(string name, bool attribs)
 {
-    Variant response = rpc_call("get_variable",{name,attribs});
-    response = validate(response,"N4D","get_variable");
+    Variant response = builtin_call("get_variable",{name,attribs});
     
     return response;
 }
 
 void Client::set_variable(string name,Variant value,Variant attribs)
 {
-    Variant response = rpc_call("set_variable",{credential.get(),name,value,attribs});
-    response = validate(response,"N4D","set_variable");
+    Variant response = builtin_call("set_variable",{credential.get(),name,value,attribs});
+    
 }
 
 void Client::delete_variable(string name)
 {
-    Variant response = rpc_call("delete_variable",{credential.get(),name});
-    response = validate(response,"N4D","delete_variable");
+    Variant response = builtin_call("delete_variable",{credential.get(),name});
+    
 }
 
 Variant Client::get_variables(bool attribs)
 {
-    Variant response = rpc_call("get_variables",{attribs});
-    response = validate(response,"N4D","get_variables");
+    Variant response = builtin_call("get_variables",{attribs});
     
     return response;
 }
@@ -778,8 +778,7 @@ bool Client::running()
 string Client::version()
 {
     vector<Variant> args;
-    Variant response = rpc_call("version",args);
-    response = validate(response,"N4D","version");
+    Variant response = builtin_call("version",args);
     
     return response.get_string();
 }
