@@ -83,6 +83,40 @@ bool auth::Key::valid()
     return false;
 }
 
+auth::Key auth::Key::master_key()
+{
+    string credential_path="/etc/n4d/key";
+    ifstream file(credential_path);
+    
+    if(!file) {
+        return auth::Key();
+    }
+    
+    string data;
+    std::getline(file,data);
+    
+    file.close();
+    
+    return auth::Key(data);
+}
+
+auth::Key auth::Key::user_key(string user)
+{
+    string credential_path="/run/n4d/tickets/"+user;
+    ifstream file(credential_path);
+    
+    if(!file) {
+        return auth::Key();
+    }
+    
+    string data;
+    std::getline(file,data);
+    
+    file.close();
+    
+    return auth::Key(data);
+}
+
 Variant auth::Credential::get()
 {
     switch (type) {
@@ -130,6 +164,14 @@ Client::Client(string address,int port,string user,auth::Key key)
     this->flags=Option::None;
     
     credential=auth::Credential(user,key);
+}
+
+Client::Client(string address,int port, auth::Credential credential)
+{
+    this->address=address;
+    this->port=port;
+    this->credential=credential;
+    this->flags=Option::None;
 }
 
 Variant parse_value(rapidxml::xml_node<>* node_value)
@@ -697,22 +739,11 @@ auth::Credential Client::create_ticket()
     auth::Type type = credential.type;
     
     if (type==auth::Type::Password or type==auth::Type::Key) {
-        Variant value = rpc_call("create_ticket",{credential.user});
-        value = validate(value,"N4D","create_ticket");
+        Variant value = builtin_call("create_ticket",{credential.user});
         
-        string credential_path="/run/n4d/tickets/"+credential.user;
-        ifstream file(credential_path);
+        auth::Key ticket = auth::Key::user_key(credential.user);
         
-        if(!file) {
-            throw exception::TicketFailed();
-        }
-        
-        string data;
-        std::getline(file,data);
-        
-        file.close();
-        
-        return auth::Credential(credential.user,auth::Key(data));
+        return auth::Credential(credential.user,ticket);
     }
     else {
         throw exception::InvalidCredential();
@@ -726,8 +757,13 @@ auth::Credential Client::get_ticket()
     
     if (type==auth::Type::Password) {
         Variant value = builtin_call("get_ticket",{credential.user,credential.password});
-        //TODO: check format
-        return auth::Credential(value.get_string());
+        
+        if (value.is_string()) {
+            return auth::Credential(credential.user,value.get_string());
+        }
+        else {
+            throw exception::InvalidBuiltInResponse("get_ticket","Exepcted string response");
+        }
     }
     else {
         throw exception::InvalidCredential();

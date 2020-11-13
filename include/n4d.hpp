@@ -287,6 +287,9 @@ namespace edupals
                 
                 std::string value;
                 
+                /*!
+                 * Create an empty (non valid) key
+                */
                 Key()
                 {
                 }
@@ -303,6 +306,21 @@ namespace edupals
                  * Checks whenever Key is properly generated
                 */
                 bool valid();
+                
+                /*!
+                 * Gets master key. No exception thrown, just empty Key on error
+                */
+                static Key master_key();
+                
+                /*!
+                 * Gets local user key. No exception thrown, just empty Key on error
+                */
+                static Key user_key(std::string user);
+                
+                operator bool()
+                {
+                    return valid();
+                }
                 
             };
             
@@ -402,6 +420,11 @@ namespace edupals
             Client(std::string address,int port,std::string user,auth::Key key);
             
             /*!
+             * Client with supplied credential
+             */
+            Client(std::string address,int port,auth::Credential);
+            
+            /*!
              * Perform a raw xml-rpc call
             */
             variant::Variant rpc_call(std::string method,std::vector<variant::Variant> params);
@@ -424,7 +447,7 @@ namespace edupals
             variant::Variant call(std::string name,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
             
             /*!
-                Performs a N4D built in call: with no plugin name and no credential
+             * Performs a N4D built in call: with no plugin name and no credential
             */
             variant::Variant builtin_call(std::string method,std::vector<variant::Variant> params);
             
