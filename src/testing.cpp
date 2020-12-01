@@ -31,9 +31,29 @@ using namespace std;
 int main(int argc,char* argv[])
 {
     
-    n4d::Client client("https://localhost",9779);
-    client.set_flags(n4d::Option::Verbose);
+    n4d::Client client("https://localhost",9800);
+    //client.set_flags(n4d::Option::Verbose);
     
+    variant::Variant value = client.get_variable("patata",true);
+    
+    clog<<"patata:"<<value["value"]<<endl;
+    clog<<"attribs:"<<endl;
+    for (string k:value.keys()) {
+        if (k!="value") {
+            clog<<"    "<<k<<":"<<value[k]<<endl;
+        }
+    }
+    
+    client.version();
+    client.get_methods();
+    
+    /*
+    for (int n=0;n<1000;n++) {
+        value = client.get_variable("patata");
+    }
+    */
+    
+    /*
     clog<<"Checking server...";
     
     if (!client.running()) {
@@ -60,6 +80,6 @@ int main(int argc,char* argv[])
     variant::Variant value = client.call("VariablesManager","listvars");
     
     clog<<"response->"<<value<<endl;
-    
+    */
     return 0;
 }

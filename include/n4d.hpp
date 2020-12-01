@@ -36,29 +36,31 @@ namespace edupals
 {
     namespace n4d
     {
+        /*! N4D server error codes */
+        enum ErrorCode
+        {
+            UnknownClass = -40,
+            UnknownMethod = -30,
+            UserNotAllowed = -20,
+            AuthenticationFailed = -10,
+            InvalidResponse = -5,
+            InvalidArguments = -3,
+            UnhandledError = -2,
+            CallFailed = -1,
+            CallSuccessful = 0
+        };
+        
         namespace exception
         {
-            class BadN4DResponse : public std::exception
+            class UnknownClass: public std::exception
             {
                 public:
                 
-                const char* what() const throw()
-                {
-                    return "Malformed N4D method response";
-                }
-            };
-            
-            class BadXML : public std::exception
-            {
-                private:
                 std::string msg;
                 
-                public:
-                
-                BadXML(std::string info)
+                UnknownClass(std::string& name)
                 {
-                    const std::string header="Bad XML response: ";
-                    msg=header+info;
+                    msg="Class "+name+" not found";
                 }
                 
                 const char* what() const throw()
@@ -67,17 +69,15 @@ namespace edupals
                 }
             };
             
-            class FaultRPC : public std::exception
+            class UnknownMethod: public std::exception
             {
-                private:
-                std::string msg;
-                
                 public:
                 
-                FaultRPC(std::string info)
+                std::string msg;
+                
+                UnknownMethod(std::string& name,std::string& method)
                 {
-                    const std::string header="Fault RPC: ";
-                    msg=header+info;
+                    msg="Method "+name+"::"+method+"() not found";
                 }
                 
                 const char* what() const throw()
@@ -86,22 +86,204 @@ namespace edupals
                 }
             };
             
-            class CurlError : public std::exception
+            class UserNotAllowed: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UserNotAllowed(std::string& user,std::string& name,std::string& method)
+                {
+                    msg=user+" not allowed to "+name+"::"+method+"()";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class AuthenticationFailed: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                AuthenticationFailed(std::string& user)
+                {
+                    msg="Authentication failed for user "+user;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class InvalidMethodResponse: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InvalidMethodResponse(std::string& name,std::string& method)
+                {
+                    msg="Invalid response from "+name+"::"+method+"()";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class InvalidServerResponse: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InvalidServerResponse(std::string& server)
+                {
+                    msg="Invalid response from server "+server;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class InvalidArguments: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InvalidArguments(std::string& name,std::string& method)
+                {
+                    msg="Invalid number of arguments for "+name+"::"+method+"()";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class UnhandledError: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UnhandledError(std::string& name,std::string& method)
+                {
+                    msg="Unhandled error on "+name+"::"+method+"()";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class CallFailed: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                std::string message;
+                int code;
+                
+                CallFailed(std::string& name,std::string& method,int code,std::string message)
+                {
+                    this->code=code;
+                    this->message=message;
+                    
+                    msg=name+"::"+method+"() returned error code :"+ std::to_string(code);
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class UnknownCode: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UnknownCode(std::string& name,std::string& method,int code)
+                {
+                    msg=name+"::"+method+"() returned an unknown error code "+ std::to_string(code);
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class ServerError : public std::exception
             {
                 private:
                 std::string msg;
                 
                 public:
                 
-                CurlError(std::string info,long int id)
+                uint64_t code;
+                
+                ServerError(uint64_t code, std::string message)
                 {
-                    const std::string header="Curl error: ";
-                    msg=header+info+"("+std::to_string(id)+")";
+                    msg="["+std::to_string(code)+"]:"+message;
+                    this->code=code;
                 }
                 
                 const char* what() const throw()
                 {
                     return msg.c_str();
+                }
+                
+            };
+            
+            class InvalidCredential : public std::exception
+            {
+                public:
+                
+                const char* what() const throw()
+                {
+                    return "Invalid credential type";
+                }
+            };
+            
+            class InvalidBuiltInResponse: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InvalidBuiltInResponse(std::string method, std::string info)
+                {
+                    msg="Invalid response from "+method+"(): "+info;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class TicketFailed : public std::exception
+            {
+                public:
+                
+                const char* what() const throw()
+                {
+                    return "Can not read ticket";
                 }
             };
         }
@@ -113,7 +295,8 @@ namespace edupals
                 None,
                 Anonymous,
                 Password,
-                Key
+                Key,
+                MasterKey
             };
             
             class Key
@@ -122,6 +305,9 @@ namespace edupals
                 
                 std::string value;
                 
+                /*!
+                 * Create an empty (non valid) key
+                */
                 Key()
                 {
                 }
@@ -138,6 +324,21 @@ namespace edupals
                  * Checks whenever Key is properly generated
                 */
                 bool valid();
+                
+                /*!
+                 * Gets master key. No exception thrown, just empty Key on error
+                */
+                static Key master_key();
+                
+                /*!
+                 * Gets local user key. No exception thrown, just empty Key on error
+                */
+                static Key user_key(std::string user);
+                
+                operator bool()
+                {
+                    return valid();
+                }
                 
             };
             
@@ -178,6 +379,16 @@ namespace edupals
                     this->key=key;
                 }
                 
+                /*!
+                 * Master key constructor
+                 */
+                Credential(Key key)
+                {
+                    this->type=Type::MasterKey;
+                    this->key=key;
+                }
+                
+                variant::Variant get();
             };
         }
         
@@ -205,12 +416,16 @@ namespace edupals
                                 std::vector<variant::Variant> params,
                                 std::stringstream& out);
             
+            bool validate_format(variant::Variant response);
+            
+            variant::Variant validate(variant::Variant response,std::string name,std::string method);
+            
             public:
             
             /*!
-             * Default client to https://localhost 9779 and anonymous credential
+             * Default client to https://localhost 9800 and anonymous credential
             */
-            Client(std::string address="https://localhost",int port=9779);
+            Client(std::string address="https://localhost",int port=9800);
             
             /*!
              * Client using a user/password as default credential
@@ -223,6 +438,11 @@ namespace edupals
             Client(std::string address,int port,std::string user,auth::Key key);
             
             /*!
+             * Client with supplied credential
+             */
+            Client(std::string address,int port,auth::Credential);
+            
+            /*!
              * Perform a raw xml-rpc call
             */
             variant::Variant rpc_call(std::string method,std::vector<variant::Variant> params);
@@ -230,30 +450,48 @@ namespace edupals
             /*!
              * Perform a sync n4d call to Plugin.method
             */
-            variant::Variant call(std::string plugin,std::string method);
+            variant::Variant call(std::string name,std::string method);
             
             /*!
              * Perform a sync n4d call to Plugin.method with given params
             */
-            variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> params);
+            variant::Variant call(std::string name,std::string method,std::vector<variant::Variant> params);
             
             /*!
              * Perform a sync n4d call to Plugin.method with given params and
              * custom credentials
             */
-            variant::Variant call(std::string plugin,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
+            [[deprecated("credential argument will be ignored!")]]
+            variant::Variant call(std::string name,std::string method,std::vector<variant::Variant> params, auth::Credential credential);
+            
+            /*!
+             * Performs a N4D built in call: with no plugin name and no credential
+            */
+            variant::Variant builtin_call(std::string method,std::vector<variant::Variant> params);
             
             virtual ~Client();
             
             /*!
              * Checks whenever a user/password is valid in that server
             */
+            [[deprecated("Use validate_auth instead. Name and password will be ignored!")]]
             bool validate_user(std::string name,std::string password);
+            
+            /*!
+                Check if current credentials are valid
+            */
+            bool validate_auth();
             
             /*!
                 Get the list of groups an user belongs to
             */
+            [[deprecated("Name and password will be ignored!")]]
             std::vector<std::string> get_groups(std::string name,std::string password);
+            
+            /*!
+                Get the list of groups an user belongs to
+            */
+            std::vector<std::string> get_groups();
             
             /*!
              * Gets a list of available methods on server
@@ -262,10 +500,45 @@ namespace edupals
             std::map<std::string,std::vector<std::string> > get_methods();
             
             /*!
+                Creates a local n4d ticket
+            */
+            auth::Credential create_ticket();
+            
+            /*!
+                Obtains a n4d ticket from a remote server. Needs a Password credential
+            */
+            auth::Credential get_ticket();
+            
+            /*!
+                Get a variable
+            */
+            variant::Variant get_variable(std::string name,bool attribs = false);
+            
+            /*!
+                Set a variable
+            */
+            void set_variable(std::string name,variant::Variant value,variant::Variant attribs);
+            
+            /*!
+                Delete a variable
+            */
+            void delete_variable(std::string name);
+            
+            /*!
+                Get a variable
+            */
+            variant::Variant get_variables(bool attribs=false);
+            
+            /*!
                 Checks whenever the server is running at specified address and port
                 Internally it calls a get_methods but no exception is thrown
             */
             bool running();
+            
+            /*!
+                Gets server version
+            */
+            std::string version();
             
             /*!
                 Set flags
@@ -276,6 +549,12 @@ namespace edupals
                 Get current flags
             */
             int get_flags();
+            
+            /*!
+                Sets a new n4d credential
+            */
+            void set_credential(auth::Credential credential);
+            
         };
     }
 }
