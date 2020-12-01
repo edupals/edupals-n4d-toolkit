@@ -1,3 +1,11 @@
+edupals-n4d-toolkit (2.1.0.0) focal; urgency=medium
+
+  * master tag: da828d39277975c9b293f40253dd24df12baf869
+  * Matched to base toolkit 2.1.0
+  * Redesigned to work with new n4d protocol
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 01 Dec 2020 22:19:30 +0100
+
 edupals-n4d-toolkit (2.0.1.1) focal; urgency=medium
 
   * Uploaded to focal
