@@ -597,6 +597,10 @@ Variant Client::validate(variant::Variant response,string name,string method)
                 throw exception::InvalidMethodResponse(name,method);
             break;
             
+            case ErrorCode::UnhandledError:
+                throw exception::UnhandledError(name,method);
+            break;
+            
             case ErrorCode::InvalidArguments:
                 throw exception::InvalidArguments(name,method);
             break;

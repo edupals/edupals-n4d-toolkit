@@ -45,6 +45,7 @@ namespace edupals
             AuthenticationFailed = -10,
             InvalidResponse = -5,
             InvalidArguments = -3,
+            UnhandledError = -2,
             CallFailed = -1,
             CallSuccessful = 0
         };
@@ -162,6 +163,23 @@ namespace edupals
                 InvalidArguments(std::string& name,std::string& method)
                 {
                     msg="Invalid number of arguments for "+name+"::"+method+"()";
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+            
+            class UnhandledError: public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                UnhandledError(std::string& name,std::string& method)
+                {
+                    msg="Unhandled error on "+name+"::"+method+"()";
                 }
                 
                 const char* what() const throw()
