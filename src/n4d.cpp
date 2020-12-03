@@ -561,6 +561,13 @@ bool Client::validate_format(variant::Variant response)
         }
     }
     
+    if (status==ErrorCode::UnhandledError) {
+        v = response/"traceback"/variant::Type::String;
+        if (v.none()) {
+            return false;
+        }
+    }
+    
     //TODO: check this logic, return may exists and be none
     v = response/"return";
     if (v.none()) {
@@ -598,7 +605,7 @@ Variant Client::validate(variant::Variant response,string name,string method)
             break;
             
             case ErrorCode::UnhandledError:
-                throw exception::UnhandledError(name,method);
+                throw exception::UnhandledError(name,method,response["traceback"]);
             break;
             
             case ErrorCode::InvalidArguments:
