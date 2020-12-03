@@ -177,9 +177,9 @@ namespace edupals
                 
                 std::string msg;
                 
-                UnhandledError(std::string& name,std::string& method)
+                UnhandledError(std::string& name,std::string& method, std::string& traceback)
                 {
-                    msg="Unhandled error on "+name+"::"+method+"()";
+                    msg="Unhandled error on "+name+"::"+method+"():\n\n"+traceback;
                 }
                 
                 const char* what() const throw()
