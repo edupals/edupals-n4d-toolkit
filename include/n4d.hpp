@@ -177,7 +177,7 @@ namespace edupals
                 
                 std::string msg;
                 
-                UnhandledError(std::string& name,std::string& method, std::string& traceback)
+                UnhandledError(std::string& name,std::string& method, std::string traceback)
                 {
                     msg="Unhandled error on "+name+"::"+method+"():\n\n"+traceback;
                 }
