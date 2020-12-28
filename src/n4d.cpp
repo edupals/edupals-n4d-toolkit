@@ -770,7 +770,7 @@ auth::Credential Client::get_ticket()
         Variant value = builtin_call("get_ticket",{credential.user,credential.password});
         
         if (value.is_string()) {
-            return auth::Credential(credential.user,value.get_string());
+            return auth::Credential(credential.user,auth::Key(value.get_string()));
         }
         else {
             throw exception::InvalidBuiltInResponse("get_ticket","Exepcted string response");
