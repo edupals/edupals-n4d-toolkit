@@ -31,7 +31,7 @@ using namespace std;
 int main(int argc,char* argv[])
 {
     
-    n4d::Client client("https://localhost",9800);
+    n4d::Client client;
     //client.set_flags(n4d::Option::Verbose);
     
     variant::Variant value = client.get_variable("patata",true);

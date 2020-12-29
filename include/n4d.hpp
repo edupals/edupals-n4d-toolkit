@@ -405,7 +405,7 @@ namespace edupals
             int flags;
             
             std::string address;
-            int port;
+            
             auth::Credential credential;
             
             void post(std::stringstream& in,std::stringstream& out);
@@ -423,24 +423,33 @@ namespace edupals
             public:
             
             /*!
-             * Default client to https://localhost 9800 and anonymous credential
+             * Default client to https://127.0.0.1 9800 and anonymous credential
             */
-            Client(std::string address="https://localhost",int port=9800);
+            Client(std::string address="https://127.0.0.1:9800");
             
+            [[deprecated("Port argument is deprecated, specify it on url address")]]
+            Client(std::string address,int port);
+
             /*!
              * Client using a user/password as default credential
             */
+            Client(std::string address,std::string user,std::string password);
+
+            [[deprecated("Port argument is deprecated, specify it on url address")]]
             Client(std::string address,int port,std::string user,std::string password);
-            
+
             /*!
              * Client using a key as default credential
             */
+            Client(std::string address,std::string user,auth::Key key);
+            
+            [[deprecated("Port argument is deprecated, specify it on url address")]]
             Client(std::string address,int port,std::string user,auth::Key key);
             
             /*!
              * Client with supplied credential
              */
-            Client(std::string address,int port,auth::Credential);
+            Client(std::string address,auth::Credential);
             
             /*!
              * Perform a raw xml-rpc call

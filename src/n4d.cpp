@@ -141,35 +141,43 @@ Variant auth::Credential::get()
     return "";
 }
 
-Client::Client(string address,int port)
+Client::Client(string address)
 {
     this->address=address;
-    this->port=port;
     this->flags=Option::None;
 }
 
-Client::Client(string address,int port,string user,string password)
+Client::Client(string address,int port) : Client(address)
 {
-    this->address=address;
-    this->port=port;
-    this->flags=Option::None;
-    
-    credential=auth::Credential(user,password);
 }
 
-Client::Client(string address,int port,string user,auth::Key key)
+Client::Client(string address,string user,string password)
 {
     this->address=address;
-    this->port=port;
     this->flags=Option::None;
     
-    credential=auth::Credential(user,key);
+    this->credential=auth::Credential(user,password);
 }
 
-Client::Client(string address,int port, auth::Credential credential)
+Client::Client(string address,int port,string user,string password) : Client(address,user,password)
+{
+}
+
+Client::Client(string address,string user,auth::Key key)
 {
     this->address=address;
-    this->port=port;
+    this->flags=Option::None;
+    
+    this->credential=auth::Credential(user,key);
+}
+
+Client::Client(string address,int port,string user,auth::Key key) : Client(address,user,key)
+{
+}
+
+Client::Client(string address, auth::Credential credential)
+{
+    this->address=address;
     this->credential=credential;
     this->flags=Option::None;
 }
@@ -428,7 +436,7 @@ void Client::post(stringstream& in,stringstream& out)
     }
     
     curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
-    curl_easy_setopt(curl, CURLOPT_PORT, port);
+    //curl_easy_setopt(curl, CURLOPT_PORT, port);
     
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
