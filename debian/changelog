@@ -1,3 +1,10 @@
+edupals-n4d-toolkit (2.2.0.0) focal; urgency=medium
+
+  * Master tag: 400998c5f24fbae7bcaa1813970bbee0c782dae1 
+  * Server port is no longer specified as argument and encoded on url address instead
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 29 Dec 2020 13:14:46 +0100
+
 edupals-n4d-toolkit (2.1.3.0) focal; urgency=medium
 
   * Master tag: 629ad80a24c981e3a6ae2a4e7ce18fe43081c276
