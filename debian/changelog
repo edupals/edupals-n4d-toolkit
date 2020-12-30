@@ -1,3 +1,11 @@
+edupals-n4d-toolkit (2.2.1.0) focal; urgency=medium
+
+  * Master tag: c5aa3484dd3acfa1d3e06e53f77ba762347b59dd 
+  * Fixed a bug accepting None valued return messages
+  * Fixed a lot of possible bugs not catching Variant exceptions
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 30 Dec 2020 17:07:08 +0100
+
 edupals-n4d-toolkit (2.2.0.0) focal; urgency=medium
 
   * Master tag: 400998c5f24fbae7bcaa1813970bbee0c782dae1 
