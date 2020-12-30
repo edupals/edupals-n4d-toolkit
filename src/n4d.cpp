@@ -464,6 +464,10 @@ void Client::create_value(Variant value, stringstream& out)
     out<<"<value>";
     switch (value.type()) {
         
+        case variant::Type::None:
+            out<<"<nil/>";
+        break;
+            
         case variant::Type::Boolean:
             out<<"<boolean>";
             if (value.get_boolean()) {
@@ -550,35 +554,25 @@ void Client::create_request(string method,vector<Variant> params,stringstream& o
 
 bool Client::validate_format(variant::Variant response)
 {
-    Variant v = response/"msg"/variant::Type::String;
-    if (v.none()) {
-        return false;
-    }
+    Variant v;
     
-    v = response/"status"/variant::Type::Int32;
-    if (v.none()) {
-        return false;
-    }
-    
-    int status = v.get_int32();
-    
-    if(status==ErrorCode::CallFailed) {
-        v = response/"error_code"/variant::Type::Int32;
-        if (v.none()) {
-            return false;
+    try {
+        v = response/"msg"/variant::Type::String;
+        v = response/"status"/variant::Type::Int32;
+        
+        switch (v.get_int32()) {
+            case ErrorCode::CallFailed:
+                v = response/"error_code"/variant::Type::Int32;
+            break;
+            
+            case ErrorCode::UnhandledError:
+                v = response/"traceback"/variant::Type::String;
+            break;
         }
+        
+        v = response/"return";
     }
-    
-    if (status==ErrorCode::UnhandledError) {
-        v = response/"traceback"/variant::Type::String;
-        if (v.none()) {
-            return false;
-        }
-    }
-    
-    //TODO: check this logic, return may exists and be none
-    v = response/"return";
-    if (v.none()) {
+    catch (variant::exception::NotFound& e) {
         return false;
     }
     
@@ -661,12 +655,11 @@ bool Client::validate_user(string name,string password)
     
     Variant value = builtin_call("validate_user",args);
     
-    Variant response = value / 0 / variant::Type::Boolean;
-    
-    if (!response.none()) {
+    try {
+        Variant response = value / 0 / variant::Type::Boolean;
         return response.get_boolean();
     }
-    else {
+    catch (variant::exception::NotFound& e) {
         throw exception::InvalidBuiltInResponse("validate_user","Exepcted boolean response");
     }
     
@@ -710,9 +703,8 @@ vector<string> Client::get_groups()
     
     Variant value = builtin_call("validate_user",args);
     
-    Variant list = value / 1 / variant::Type::Array;
-    
-    if (!list.none()) {
+    try {
+        Variant list = value / 1 / variant::Type::Array;
         vector<string> groups;
         
         for (int n=0;n<list.count();n++) {
@@ -725,9 +717,10 @@ vector<string> Client::get_groups()
         
         return groups;
     }
-    else {
+    catch (variant::exception::NotFound& e) {
         throw exception::InvalidBuiltInResponse("get_groups","Exepcted array response");
     }
+    
 }
 
 map<string,vector<string> > Client::get_methods()
