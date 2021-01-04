@@ -141,6 +141,58 @@ Variant auth::Credential::get()
     return "";
 }
 
+static vector<string> split(string in)
+{
+    vector<string> ret;
+    string tmp;
+    
+    for (char c:in) {
+        
+        if (c==' ') {
+            ret.push_back(tmp);
+            tmp="";
+        }
+        else {
+            tmp=tmp+c;
+        }
+    }
+    
+    if (tmp.size()>0) {
+        ret.push_back(tmp);
+    }
+    
+    return ret;
+}
+
+Ticket::Ticket(string ticket)
+{
+    _valid=false;
+    
+    vector<string> tmp = split(ticket);
+    
+    if (tmp.size()>=4) {
+        if (tmp[0]=="N4DTKV2") {
+            // check uri?
+            address=tmp[1];
+            credential = auth::Credential(tmp[2],auth::Key(tmp[3]));
+            
+            if (credential.key) {
+                _valid=true;
+            }
+        }
+    }
+}
+
+string Ticket::to_string()
+{
+    if (_valid) {
+        return "N4DTKV2 "+address+" "+credential.user+" "+credential.key.value;
+    }
+    else {
+        return "";
+    }
+}
+
 Client::Client(string address)
 {
     this->address=address;
@@ -179,6 +231,13 @@ Client::Client(string address, auth::Credential credential)
 {
     this->address=address;
     this->credential=credential;
+    this->flags=Option::None;
+}
+
+Client::Client(Ticket ticket)
+{
+    this->address=ticket.get_address();
+    this->credential=ticket.get_credential();
     this->flags=Option::None;
 }
 
@@ -844,4 +903,19 @@ int Client::get_flags()
 void Client::set_credential(auth::Credential credential)
 {
     this->credential=credential;
+}
+
+auth::Credential Client::get_credential()
+{
+    return credential;
+}
+
+string Client::get_address()
+{
+    return address;
+}
+
+void Client::set_address(std::string address)
+{
+    this->address=address;
 }

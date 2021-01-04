@@ -392,6 +392,42 @@ namespace edupals
             };
         }
         
+        class Ticket
+        {
+            protected:
+            
+            bool _valid;
+            std::string address;
+            auth::Credential credential;
+            
+            public:
+            
+            Ticket(std::string ticket);
+            
+            std::string to_string();
+            
+            bool valid()
+            {
+                return _valid;
+            }
+            
+            operator bool()
+            {
+                return valid();
+            }
+            
+            std::string get_address()
+            {
+                return address;
+            }
+            
+            auth::Credential get_credential()
+            {
+                return credential;
+            }
+            
+        };
+        
         enum Option
         {
             None = 0x00,
@@ -450,6 +486,12 @@ namespace edupals
              * Client with supplied credential
              */
             Client(std::string address,auth::Credential);
+            
+            /*!
+             * Client from ticket
+             * TODO: throw exception?
+            */
+            Client(Ticket ticket);
             
             /*!
              * Perform a raw xml-rpc call
@@ -563,6 +605,21 @@ namespace edupals
                 Sets a new n4d credential
             */
             void set_credential(auth::Credential credential);
+            
+            /*!
+                Gets current credential
+            */
+            auth::Credential get_credential();
+            
+            /*!
+                Gets current URI address
+            */
+            std::string get_address();
+            
+            /*!
+                Sets a new URI address of n4d server
+            */
+            void set_address(std::string address);
             
         };
     }
