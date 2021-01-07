@@ -22,6 +22,7 @@
  */
 
 #include <n4d.hpp>
+#include <user.hpp>
 
 #include <iostream>
 
@@ -32,6 +33,30 @@ int main(int argc,char* argv[])
 {
     
     n4d::Client client;
+    
+    system::User me = system::User::me();
+    
+    clog<<"looking for a key for "<<me.name<<endl;
+    n4d::auth::Key key = n4d::auth::Key::user_key(me.name);
+    
+    if (key) {
+        clog<<"Found a local key"<<endl;
+        
+        //build a fake ticket
+        string ticketstr = "N4DTKV2 https://127.0.0.1:9779 "+me.name+" "+key.value;
+        
+        n4d::Ticket ticket(ticketstr);
+        
+        if (ticket) {
+            clog<<"ticket parsed successfully"<<endl;
+            clog<<"* "<<ticket.get_address()<<endl;
+            clog<<"* "<<ticket.get_credential().user<<endl;
+            clog<<"* "<<ticket.get_credential().key.value<<endl;
+            
+            client = n4d::Client(ticket);
+        }
+    }
+    
     //client.set_flags(n4d::Option::Verbose);
     
     variant::Variant value = client.get_variable("patata",true);
