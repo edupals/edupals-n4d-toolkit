@@ -1,3 +1,10 @@
+edupals-n4d-toolkit (2.3.0.0) focal; urgency=medium
+
+  * Master tag: fb42dbb8247079c21702333ca64c79117de0f892 
+  * Added Ticket management support
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Thu, 07 Jan 2021 16:29:38 +0100
+
 edupals-n4d-toolkit (2.2.1.0) focal; urgency=medium
 
   * Master tag: c5aa3484dd3acfa1d3e06e53f77ba762347b59dd 
