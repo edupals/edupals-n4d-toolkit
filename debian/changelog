@@ -1,3 +1,10 @@
+edupals-n4d-toolkit (2.4.0.0) focal; urgency=medium
+
+  * Master tag: 0cc44676f3418db00a7bca95069d94eb1f17ff49 
+  * ticket request returns a Ticket object, not a single key
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 20 Jan 2021 23:09:32 +0100
+
 edupals-n4d-toolkit (2.3.0.0) focal; urgency=medium
 
   * Master tag: fb42dbb8247079c21702333ca64c79117de0f892 
