@@ -164,6 +164,12 @@ static vector<string> split(string in)
     return ret;
 }
 
+Ticket::Ticket(string address,auth::Credential credential)
+{
+    this->address=address;
+    this->credential=credential;
+}
+
 Ticket::Ticket(string ticket)
 {
     _valid=false;
@@ -805,7 +811,7 @@ map<string,vector<string> > Client::get_methods()
     return plugins;
 }
 
-auth::Credential Client::create_ticket()
+Ticket Client::create_ticket()
 {
     auth::Type type = credential.type;
     
@@ -814,7 +820,7 @@ auth::Credential Client::create_ticket()
         
         auth::Key ticket = auth::Key::user_key(credential.user);
         
-        return auth::Credential(credential.user,ticket);
+        return Ticket(address,auth::Credential(credential.user,ticket));
     }
     else {
         throw exception::InvalidCredential();
@@ -822,7 +828,7 @@ auth::Credential Client::create_ticket()
     
 }
 
-auth::Credential Client::get_ticket()
+Ticket Client::get_ticket()
 {
     auth::Type type = credential.type;
     
@@ -830,10 +836,10 @@ auth::Credential Client::get_ticket()
         Variant value = builtin_call("get_ticket",{credential.user,credential.password});
         
         if (value.is_string()) {
-            return auth::Credential(credential.user,auth::Key(value.get_string()));
+            return Ticket(address,auth::Credential(credential.user,auth::Key(value.get_string())));
         }
         else {
-            throw exception::InvalidBuiltInResponse("get_ticket","Exepcted string response");
+            throw exception::InvalidBuiltInResponse("get_ticket","Expected string response");
         }
     }
     else {
