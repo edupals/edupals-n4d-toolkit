@@ -402,6 +402,8 @@ namespace edupals
             
             public:
             
+            Ticket(std::string address, auth::Credential credential);
+            
             Ticket(std::string ticket);
             
             std::string to_string();
@@ -553,12 +555,12 @@ namespace edupals
             /*!
                 Creates a local n4d ticket
             */
-            auth::Credential create_ticket();
+            Ticket create_ticket();
             
             /*!
                 Obtains a n4d ticket from a remote server. Needs a Password credential
             */
-            auth::Credential get_ticket();
+            Ticket get_ticket();
             
             /*!
                 Get a variable
