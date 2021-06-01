@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (2.4.2.0) focal; urgency=medium
+
+  * Fixed validate_auth
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 01 Jun 2021 14:08:02 +0200
+
 edupals-n4d-toolkit (2.4.1.0) focal; urgency=medium
 
   * Master tag: a72fc077928ae9c929a6a13332170a2761a0a0f3
