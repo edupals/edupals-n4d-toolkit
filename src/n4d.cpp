@@ -891,7 +891,7 @@ bool Client::running()
 string Client::version()
 {
     vector<Variant> args;
-    Variant response = builtin_call("version",args);
+    Variant response = builtin_call("get_version",args);
     
     return response.get_string();
 }
