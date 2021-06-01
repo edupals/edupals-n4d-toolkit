@@ -1,3 +1,10 @@
+edupals-n4d-toolkit (2.4.1.0) focal; urgency=medium
+
+  * Master tag: a72fc077928ae9c929a6a13332170a2761a0a0f3
+  * calling get_version instead of version
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 01 Jun 2021 11:42:28 +0200
+
 edupals-n4d-toolkit (2.4.0.0) focal; urgency=medium
 
   * Master tag: 0cc44676f3418db00a7bca95069d94eb1f17ff49 
