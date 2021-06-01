@@ -725,7 +725,7 @@ bool Client::validate_user(string name,string password)
         return response.get_boolean();
     }
     catch (variant::exception::NotFound& e) {
-        throw exception::InvalidBuiltInResponse("validate_user","Exepcted boolean response");
+        throw exception::InvalidBuiltInResponse("validate_user","Expected boolean response");
     }
     
 }
@@ -734,11 +734,12 @@ bool Client::validate_auth()
 {
     Variant value = builtin_call("validate_auth",{credential.get()});
     
-    if (value.is_boolean()) {
-        return value.get_boolean();
+    try {
+        Variant response = value / 0 / variant::Type::Boolean;
+        return response.get_boolean();
     }
-    else {
-        throw exception::InvalidBuiltInResponse("validate_auth","Exepcted boolean response");
+    catch (variant::exception::NotFound& e) {
+        throw exception::InvalidBuiltInResponse("validate_auth","Expected boolean response");
     }
 }
 
