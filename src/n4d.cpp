@@ -168,6 +168,9 @@ Ticket::Ticket(string address,auth::Credential credential)
 {
     this->address=address;
     this->credential=credential;
+    
+    // should we perform a deeper validation?
+    _valid = credential.key.valid();
 }
 
 Ticket::Ticket(string ticket)
