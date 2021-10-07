@@ -50,6 +50,16 @@ namespace edupals
             CallSuccessful = 0
         };
         
+        enum VariableErrorCode
+        {
+            NotFound = -5,
+            Protected = -10,
+            RemoteServerError = -15,
+            BackupError =  -30.
+            RestoreError = -35,
+            RemoteServerNotConfigured = -40
+        };
+        
         namespace exception
         {
             class UnknownClass: public std::exception
@@ -286,6 +296,47 @@ namespace edupals
                     return "Can not read ticket";
                 }
             };
+            
+            namespace variable
+            {
+                class NotFound : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    NotFound(std::string name)
+                    {
+                        msg="Variable not found: "+name;
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class Protected : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    Protected(std::string name)
+                    {
+                        msg="Variable is protected: "+name;
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+            }
         }
         
         namespace auth
@@ -581,6 +632,11 @@ namespace edupals
                 Get a variable
             */
             variant::Variant get_variables(bool attribs=false);
+            
+            /*!
+                Checks for a variable
+            */
+            bool variable_exists(std::string name);
             
             /*!
                 Checks whenever the server is running at specified address and port

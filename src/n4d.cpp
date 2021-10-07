@@ -878,6 +878,13 @@ Variant Client::get_variables(bool attribs)
     return response;
 }
 
+bool Client::variable_exists(string name)
+{
+    Variant response = builtin_call("variable_exists",{name});
+    
+    return response.get_boolean();
+}
+
 bool Client::running()
 {
     bool status=true;
