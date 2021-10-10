@@ -852,11 +852,47 @@ Ticket Client::get_ticket()
     
 }
 
+void Client::handle_variable_error(VariableErrorCode code, string name)
+{
+    switch (code) {
+        case VariableErrorCode::NotFound:
+            throw exception::variable::NotFound(name);
+        break;
+        
+        case VariableErrorCode::Protected:
+            throw exception::variable::Protected(name);
+        break;
+        
+        case VariableErrorCode::RemoteServerError:
+            throw exception::variable::RemoteServerError();
+        break;
+        
+        case VariableErrorCode::BackupError:
+            throw exception::variable::BackupError();
+        break;
+        
+        case VariableErrorCode::RestoreError:
+            throw exception::variable::RestoreError();
+        break;
+        
+        case VariableErrorCode::RemoteServerNotConfigured:
+            throw exception::variable::RemoteServerNotConfigured();
+        break;
+    }
+}
+
 Variant Client::get_variable(string name, bool attribs)
 {
-    Variant response = builtin_call("get_variable",{name,attribs});
+    try {
+        Variant response = builtin_call("get_variable",{name,attribs});
     
-    return response;
+        return response;
+    }
+    catch (exception::CallFailed& e) {
+        handle_variable_error(static_cast<VariableErrorCode>(e.code),name);
+        
+        throw;
+    }
 }
 
 void Client::set_variable(string name,Variant value,Variant attribs)

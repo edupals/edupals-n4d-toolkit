@@ -55,7 +55,7 @@ namespace edupals
             NotFound = -5,
             Protected = -10,
             RemoteServerError = -15,
-            BackupError =  -30.
+            BackupError =  -30,
             RestoreError = -35,
             RemoteServerNotConfigured = -40
         };
@@ -336,6 +336,82 @@ namespace edupals
                     }
                     
                 };
+                
+                class RemoteServerError : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    RemoteServerError()
+                    {
+                        msg="Remote server error";
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class BackupError : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    BackupError()
+                    {
+                        msg="Backup error";
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class RestoreError : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    RestoreError()
+                    {
+                        msg="Restore error";
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class RemoteServerNotConfigured : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    RemoteServerNotConfigured()
+                    {
+                        msg="Remote server not configured";
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
             }
         }
         
@@ -508,6 +584,8 @@ namespace edupals
             bool validate_format(variant::Variant response);
             
             variant::Variant validate(variant::Variant response,std::string name,std::string method);
+            
+            void handle_variable_error(VariableErrorCode code, std::string name);
             
             public:
             
