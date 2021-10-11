@@ -57,6 +57,7 @@ int main(int argc,char* argv[])
         }
     }
     
+    clog<<"valid: "<<client.is_user_valid({"patata"})<<endl;
     //client.set_flags(n4d::Option::Verbose);
     
     variant::Variant value = client.get_variable("patata",true);

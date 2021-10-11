@@ -660,9 +660,14 @@ namespace edupals
             bool validate_user(std::string name,std::string password);
             
             /*!
-                Check if current credentials are valid
+                Checks if current credentials are valid
             */
             bool validate_auth();
+            
+            /*!
+                Checks if current user is valid and belongs to given groups
+            */
+            bool is_user_valid (std::vector<std::string> groups={});
             
             /*!
                 Get the list of groups an user belongs to
