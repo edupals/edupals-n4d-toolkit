@@ -1,3 +1,11 @@
+edupals-n4d-toolkit (2.5.0.0) focal; urgency=medium
+
+  * Master tag: 113b9667a579f6ad20cfac8aa32eb0ae108c4c39
+  * Better variable handling methods
+  * Some fixes
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 11 Oct 2021 12:38:52 +0200
+
 edupals-n4d-toolkit (2.4.3.0) focal; urgency=medium
 
   * Master tag: f36ee848cb838cfec4940ed0effa6fd61afef227
