@@ -50,6 +50,16 @@ namespace edupals
             CallSuccessful = 0
         };
         
+        enum VariableErrorCode
+        {
+            NotFound = -5,
+            Protected = -10,
+            RemoteServerError = -15,
+            BackupError =  -30,
+            RestoreError = -35,
+            RemoteServerNotConfigured = -40
+        };
+        
         namespace exception
         {
             class UnknownClass: public std::exception
@@ -286,6 +296,123 @@ namespace edupals
                     return "Can not read ticket";
                 }
             };
+            
+            namespace variable
+            {
+                class NotFound : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    NotFound(std::string name)
+                    {
+                        msg="Variable not found: "+name;
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class Protected : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    Protected(std::string name)
+                    {
+                        msg="Variable is protected: "+name;
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class RemoteServerError : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    RemoteServerError()
+                    {
+                        msg="Remote server error";
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class BackupError : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    BackupError()
+                    {
+                        msg="Backup error";
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class RestoreError : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    RestoreError()
+                    {
+                        msg="Restore error";
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+                
+                class RemoteServerNotConfigured : public std::exception
+                {
+                    private:
+                    std::string msg;
+                    
+                    public:
+                    
+                    RemoteServerNotConfigured()
+                    {
+                        msg="Remote server not configured";
+                    }
+                    
+                    const char* what() const throw()
+                    {
+                        return msg.c_str();
+                    }
+                    
+                };
+            }
         }
         
         namespace auth
@@ -458,6 +585,8 @@ namespace edupals
             
             variant::Variant validate(variant::Variant response,std::string name,std::string method);
             
+            void handle_variable_error(VariableErrorCode code, std::string name);
+            
             public:
             
             /*!
@@ -531,9 +660,14 @@ namespace edupals
             bool validate_user(std::string name,std::string password);
             
             /*!
-                Check if current credentials are valid
+                Checks if current credentials are valid
             */
             bool validate_auth();
+            
+            /*!
+                Checks if current user is valid and belongs to given groups
+            */
+            bool is_user_valid (std::vector<std::string> groups={});
             
             /*!
                 Get the list of groups an user belongs to
@@ -581,6 +715,11 @@ namespace edupals
                 Get a variable
             */
             variant::Variant get_variables(bool attribs=false);
+            
+            /*!
+                Checks for a variable
+            */
+            bool variable_exists(std::string name);
             
             /*!
                 Checks whenever the server is running at specified address and port

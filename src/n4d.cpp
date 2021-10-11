@@ -744,6 +744,31 @@ bool Client::validate_auth()
     catch (variant::exception::NotFound& e) {
         throw exception::InvalidBuiltInResponse("validate_auth","Expected boolean response");
     }
+    catch (exception::AuthenticationFailed& e) {
+        /* NOTE 
+            This should be fixed in server on future releases
+         */
+        return false;
+    }
+}
+
+bool Client::is_user_valid(vector<string> groups)
+{
+    auth::Type type = credential.type;
+    
+    if (type==auth::Type::Password or type==auth::Type::Key) {
+        Variant args = credential.get();
+        Variant vgroups = Variant::create_array(0);
+        for (string& g : groups) {
+            vgroups.append(g);
+        }
+        Variant value = builtin_call("is_user_valid",{args[0],args[1],vgroups});
+        
+        return value.to_boolean();
+    }
+    else {
+        throw exception::InvalidCredential();
+    }
 }
 
 vector<string> Client::get_groups(string name,string password)
@@ -797,19 +822,19 @@ map<string,vector<string> > Client::get_methods()
     map<string, vector<string> > plugins;
     vector<Variant> params;
     
-    Variant value = builtin_call("get_sorted_methods",params);
+    Variant value = builtin_call("get_methods",params);
     
     try {
         for (string& key : value.keys()) {
             
-            for (size_t n=0;n<value[key].count();n++) {
+            for (string& mkey : value[key].keys()) {
                 
-                plugins[key].push_back(value[key][n].get_string());
+                plugins[key].push_back(mkey);
             }
         }
     }
     catch (std::exception& ex) {
-        throw exception::ServerError(0,"ToDo");
+        throw exception::InvalidBuiltInResponse("get_methods","Failed to parse response");
     }
     
     return plugins;
@@ -852,30 +877,99 @@ Ticket Client::get_ticket()
     
 }
 
+void Client::handle_variable_error(VariableErrorCode code, string name)
+{
+    switch (code) {
+        case VariableErrorCode::NotFound:
+            throw exception::variable::NotFound(name);
+        break;
+        
+        case VariableErrorCode::Protected:
+            throw exception::variable::Protected(name);
+        break;
+        
+        case VariableErrorCode::RemoteServerError:
+            throw exception::variable::RemoteServerError();
+        break;
+        
+        case VariableErrorCode::BackupError:
+            throw exception::variable::BackupError();
+        break;
+        
+        case VariableErrorCode::RestoreError:
+            throw exception::variable::RestoreError();
+        break;
+        
+        case VariableErrorCode::RemoteServerNotConfigured:
+            throw exception::variable::RemoteServerNotConfigured();
+        break;
+    }
+}
+
 Variant Client::get_variable(string name, bool attribs)
 {
-    Variant response = builtin_call("get_variable",{name,attribs});
+    try {
+        Variant response = builtin_call("get_variable",{name,attribs});
     
-    return response;
+        return response;
+    }
+    catch (exception::CallFailed& e) {
+        handle_variable_error(static_cast<VariableErrorCode>(e.code),name);
+        
+        throw;
+    }
 }
 
 void Client::set_variable(string name,Variant value,Variant attribs)
 {
-    Variant response = builtin_call("set_variable",{credential.get(),name,value,attribs});
-    
+    try {
+        Variant response = builtin_call("set_variable",{credential.get(),name,value,attribs});
+    }
+    catch (exception::CallFailed& e) {
+        handle_variable_error(static_cast<VariableErrorCode>(e.code),name);
+        
+        throw;
+    }
 }
 
 void Client::delete_variable(string name)
 {
-    Variant response = builtin_call("delete_variable",{credential.get(),name});
-    
+    try {
+        Variant response = builtin_call("delete_variable",{credential.get(),name});
+    }
+    catch (exception::CallFailed& e) {
+        handle_variable_error(static_cast<VariableErrorCode>(e.code),name);
+        
+        throw;
+    }
 }
 
 Variant Client::get_variables(bool attribs)
 {
-    Variant response = builtin_call("get_variables",{attribs});
+    try {
+        Variant response = builtin_call("get_variables",{attribs});
     
-    return response;
+        return response;
+    }
+    catch (exception::CallFailed& e) {
+        handle_variable_error(static_cast<VariableErrorCode>(e.code),"");
+        
+        throw;
+    }
+}
+
+bool Client::variable_exists(string name)
+{
+    try {
+        Variant response = builtin_call("variable_exists",{name});
+    
+        return response.get_boolean();
+    }
+    catch (exception::CallFailed& e) {
+        handle_variable_error(static_cast<VariableErrorCode>(e.code),name);
+        
+        throw;
+    }
 }
 
 bool Client::running()
@@ -925,7 +1019,7 @@ string Client::get_address()
     return address;
 }
 
-void Client::set_address(std::string address)
+void Client::set_address(string address)
 {
     this->address=address;
 }
