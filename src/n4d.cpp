@@ -357,6 +357,7 @@ void Client::post(stringstream& in,stringstream& out)
     
     curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
     curl_easy_setopt(curl, CURLOPT_PORT, port);
+    curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
     
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
