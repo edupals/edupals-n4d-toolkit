@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (2.0.2.0) bionic; urgency=medium
+
+  * Using HTTP 1.0, fixing a bug with large packets being fragmented (and delayed)
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 01 Dec 2021 12:58:21 +0100
+
 edupals-n4d-toolkit (2.0.1.0) bionic; urgency=medium
 
   * master tag: 16b954560e4c243828dc94fb233f9997f7e38ee9
