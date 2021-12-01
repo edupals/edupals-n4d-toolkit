@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (2.5.1.0) focal; urgency=medium
+
+  * Using HTTP 1.0
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 01 Dec 2021 13:09:16 +0100
+
 edupals-n4d-toolkit (2.5.0.0) focal; urgency=medium
 
   * Master tag: 113b9667a579f6ad20cfac8aa32eb0ae108c4c39
