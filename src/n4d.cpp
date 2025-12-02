@@ -33,6 +33,8 @@
 #include <sstream>
 #include <fstream>
 
+#define N4D_DEFAULT_TIMEOUT 5000
+
 using namespace edupals;
 using namespace edupals::variant;
 using namespace edupals::parser;
@@ -202,7 +204,7 @@ string Ticket::to_string()
     }
 }
 
-Client::Client(string address)
+Client::Client(string address) : timeout(N4D_DEFAULT_TIMEOUT)
 {
     this->address=address;
     this->flags=Option::None;
@@ -212,7 +214,7 @@ Client::Client(string address,int port) : Client(address)
 {
 }
 
-Client::Client(string address,string user,string password)
+Client::Client(string address,string user,string password) : timeout(N4D_DEFAULT_TIMEOUT)
 {
     this->address=address;
     this->flags=Option::None;
@@ -224,7 +226,7 @@ Client::Client(string address,int port,string user,string password) : Client(add
 {
 }
 
-Client::Client(string address,string user,auth::Key key)
+Client::Client(string address,string user,auth::Key key) : timeout(N4D_DEFAULT_TIMEOUT)
 {
     this->address=address;
     this->flags=Option::None;
@@ -236,14 +238,14 @@ Client::Client(string address,int port,string user,auth::Key key) : Client(addre
 {
 }
 
-Client::Client(string address, auth::Credential credential)
+Client::Client(string address, auth::Credential credential) : timeout(N4D_DEFAULT_TIMEOUT)
 {
     this->address=address;
     this->credential=credential;
     this->flags=Option::None;
 }
 
-Client::Client(Ticket ticket)
+Client::Client(Ticket ticket) : timeout(N4D_DEFAULT_TIMEOUT)
 {
     this->address=ticket.get_address();
     this->credential=ticket.get_credential();
@@ -515,6 +517,8 @@ void Client::post(stringstream& in,stringstream& out)
     
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,&in);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,response_cb);
+
+     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, this->timeout);
     
     res=curl_easy_perform(curl);
     
@@ -1022,4 +1026,14 @@ string Client::get_address()
 void Client::set_address(string address)
 {
     this->address=address;
+}
+
+int Client::get_timeout()
+{
+    return timeout;
+}
+
+void Client::set_timeout(int ms)
+{
+    this->timeout = ms;
 }
