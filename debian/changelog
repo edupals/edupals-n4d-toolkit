@@ -1,3 +1,9 @@
+edupals-n4d-toolkit (2.6.0.0) jammy; urgency=medium
+
+  * Added a connection timout parameter (default to 5s)
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Wed, 03 Dec 2025 13:09:15 +0100
+
 edupals-n4d-toolkit (2.5.1.1) jammy; urgency=medium
 
   * Jammy release
