@@ -568,6 +568,7 @@ namespace edupals
         {
             protected:
             int flags;
+            int timeout;
             
             std::string address;
             
@@ -762,6 +763,15 @@ namespace edupals
             */
             void set_address(std::string address);
             
+            /*!
+             *  Gets current timeout in milliseconds
+             */
+            int get_timeout();
+
+            /*!
+             *  Sets timeout in milliseconds
+             */
+            void set_timeout(int ms);
         };
     }
 }
