@@ -518,7 +518,7 @@ void Client::post(stringstream& in,stringstream& out)
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,&in);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,response_cb);
 
-     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, this->timeout);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, this->timeout);
     
     res=curl_easy_perform(curl);
     
