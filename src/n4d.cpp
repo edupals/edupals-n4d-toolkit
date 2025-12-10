@@ -33,8 +33,6 @@
 #include <sstream>
 #include <fstream>
 
-#define N4D_DEFAULT_TIMEOUT 5000
-
 using namespace edupals;
 using namespace edupals::variant;
 using namespace edupals::parser;
@@ -204,7 +202,7 @@ string Ticket::to_string()
     }
 }
 
-Client::Client(string address) : timeout(N4D_DEFAULT_TIMEOUT)
+Client::Client(string address) : timeout(EDUPALS_N4D_DEFAULT_TIMEOUT)
 {
     this->address=address;
     this->flags=Option::None;
@@ -214,7 +212,7 @@ Client::Client(string address,int port) : Client(address)
 {
 }
 
-Client::Client(string address,string user,string password) : timeout(N4D_DEFAULT_TIMEOUT)
+Client::Client(string address,string user,string password) : timeout(EDUPALS_N4D_DEFAULT_TIMEOUT)
 {
     this->address=address;
     this->flags=Option::None;
@@ -226,7 +224,7 @@ Client::Client(string address,int port,string user,string password) : Client(add
 {
 }
 
-Client::Client(string address,string user,auth::Key key) : timeout(N4D_DEFAULT_TIMEOUT)
+Client::Client(string address,string user,auth::Key key) : timeout(EDUPALS_N4D_DEFAULT_TIMEOUT)
 {
     this->address=address;
     this->flags=Option::None;
@@ -238,14 +236,14 @@ Client::Client(string address,int port,string user,auth::Key key) : Client(addre
 {
 }
 
-Client::Client(string address, auth::Credential credential) : timeout(N4D_DEFAULT_TIMEOUT)
+Client::Client(string address, auth::Credential credential) : timeout(EDUPALS_N4D_DEFAULT_TIMEOUT)
 {
     this->address=address;
     this->credential=credential;
     this->flags=Option::None;
 }
 
-Client::Client(Ticket ticket) : timeout(N4D_DEFAULT_TIMEOUT)
+Client::Client(Ticket ticket) : timeout(EDUPALS_N4D_DEFAULT_TIMEOUT)
 {
     this->address=ticket.get_address();
     this->credential=ticket.get_credential();
