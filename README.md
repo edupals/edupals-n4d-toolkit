@@ -44,3 +44,27 @@ int main(int argc,char* argv[])
     return 0;
 }
 ```
+
+Default constructor creates an anonymous client to localhost and port 9779:
+```
+n4d::Client client;
+```
+
+Client with an user&password credential:
+```
+n4d::Client client(EDUPALS_N4D_DEFAULT_URL,"foouser","foopass");
+```
+
+Gets a ticket from a server and create another Client with that ticket
+```
+n4d::Client remote("https://server:9779","foouser","foopass");
+n4d::auth::Ticket ticket = remote.get_ticket();
+
+n4d::Client client(ticket);
+```
+
+Handy method that creates a client with a local ticket using current process user
+```
+n4d::Client client = n4d::Client::from_local_ticket();
+```
+
