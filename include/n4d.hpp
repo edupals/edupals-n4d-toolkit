@@ -627,6 +627,11 @@ namespace edupals
              * TODO: throw exception?
             */
             Client(Ticket ticket);
+
+            /*!
+             * Creates a Client with a local ticket. Uses current process user.
+            */
+            static Client from_local_ticket();
             
             /*!
              * Perform a raw xml-rpc call

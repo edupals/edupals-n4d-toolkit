@@ -23,6 +23,8 @@
 
 #include <n4d.hpp>
 #include <token.hpp>
+#include <system.hpp>
+#include <user.hpp>
 
 #include <curl/curl.h>
 #include <rapidxml/rapidxml.hpp>
@@ -248,6 +250,16 @@ Client::Client(Ticket ticket) : timeout(EDUPALS_N4D_DEFAULT_TIMEOUT)
     this->address=ticket.get_address();
     this->credential=ticket.get_credential();
     this->flags=Option::None;
+}
+
+Client Client::from_local_ticket()
+{
+    system::User me = system::User::me();
+
+    n4d::Client client(EDUPALS_N4D_DEFAULT_URL, me.name,"");
+    n4d::Ticket ticket = client.create_ticket();
+
+    return Client(ticket);
 }
 
 Variant parse_value(rapidxml::xml_node<>* node_value)
