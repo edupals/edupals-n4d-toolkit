@@ -1,3 +1,10 @@
+edupals-n4d-toolkit (2.7.0.0) jammy; urgency=medium
+
+  * Added constants for default url and default timeout
+  * Added a handy static constructor for local user tickets
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Fri, 12 Dec 2025 09:30:49 +0100
+
 edupals-n4d-toolkit (2.6.0.0) jammy; urgency=medium
 
   * Added a connection timout parameter (default to 5s)
