@@ -32,6 +32,9 @@
 #include <map>
 #include <exception>
 
+#define EDUPALS_N4D_DEFAULT_URL "https://127.0.0.1:9779"
+#define EDUPALS_N4D_DEFAULT_TIMEOUT 5000
+
 namespace edupals
 {
     namespace n4d
@@ -593,7 +596,7 @@ namespace edupals
             /*!
              * Default client to https://127.0.0.1 9779 and anonymous credential
             */
-            Client(std::string address="https://127.0.0.1:9779");
+            Client(std::string address = EDUPALS_N4D_DEFAULT_URL);
             
             [[deprecated("Port argument is deprecated, specify it on url address")]]
             Client(std::string address,int port);
@@ -624,6 +627,11 @@ namespace edupals
              * TODO: throw exception?
             */
             Client(Ticket ticket);
+
+            /*!
+             * Creates a Client with a local ticket. Uses current process user.
+            */
+            static Client from_local_ticket();
             
             /*!
              * Perform a raw xml-rpc call
