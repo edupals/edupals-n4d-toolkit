@@ -1,3 +1,10 @@
+edupals-n4d-toolkit (2.7.0.0) noble; urgency=medium
+  
+  * Added constants for default url and default timeout
+  * Added a handy static constructor for local user tickets
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Tue, 16 Dec 2025 10:35:05 +0100
+
 edupals-n4d-toolkit (2.6.0.0) noble; urgency=medium
 
   * Added a connection timout parameter (default to 5s)
